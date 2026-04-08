@@ -1,0 +1,30 @@
+Ini data dasar kampus:
+
+Nama kampus
+
+Nama singkatan kampus
+
+Status kampus (Negeri / Swasta)
+
+Kode PT / NPSN
+
+Tahun berdiri
+
+Akreditasi kampus
+
+Website resmi
+
+Email resmi kampus
+
+Nomor telepon
+
+alamat
+
+Nama Rektor/Ketua
+
+NIP/NIDN (jika ada)
+
+Periode jabatan
+
+Email pimpinan
+

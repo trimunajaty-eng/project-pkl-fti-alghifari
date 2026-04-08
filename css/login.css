@@ -1,0 +1,274 @@
+:root{
+  --primary:#2563eb;
+  --primary2:#4f46e5;
+
+  --bg:#f1f5f9;
+
+  --text:#0f172a;
+  --muted:#64748b;
+
+  --stroke:#d1d5db;
+}
+
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+}
+
+body{
+  font-family:"Poppins",sans-serif;
+  background:var(--bg);
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  min-height:100vh;
+  padding:20px;
+}
+
+/* =========================
+   LOADER
+========================= */
+#loader{
+  position:fixed;
+  inset:0;
+  background:#fff;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  z-index:9999;
+}
+
+.loader-box{ text-align:center; }
+
+.spinner{
+  width:45px;
+  height:45px;
+
+  border:4px solid #ddd;
+  border-top:4px solid var(--primary);
+  border-radius:50%;
+
+  margin:auto;
+  animation:spin 1s linear infinite;
+}
+
+@keyframes spin{
+  to{ transform:rotate(360deg); }
+}
+
+.loader-box p{
+  margin-top:10px;
+  font-size:13px;
+  color:var(--muted);
+}
+
+/* =========================
+   LOGIN WRAPPER
+========================= */
+.login-wrapper{
+  width:100%;
+  max-width:420px;
+  display:none;
+}
+
+/* =========================
+   LOGIN BOX
+========================= */
+.login-box{
+  background:#fff;
+  border-radius:14px;
+  padding:35px 30px;
+  box-shadow:0 20px 40px rgba(0,0,0,.08);
+  animation:fade .6s ease;
+}
+
+@keyframes fade{
+  from{ opacity:0; transform:translateY(15px); }
+  to{ opacity:1; transform:translateY(0); }
+}
+
+/* =========================
+   HEADER
+========================= */
+.login-header{
+  text-align:center;
+  margin-bottom:25px;
+}
+
+.logo-circle{
+  width:60px;
+  height:60px;
+
+  background:linear-gradient(135deg,var(--primary),var(--primary2));
+  color:#fff;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  font-weight:600;
+  border-radius:50%;
+  margin:0 auto 12px;
+}
+
+.login-header h1{ font-size:20px; }
+.login-header p{
+  font-size:13px;
+  color:var(--muted);
+}
+
+/* =========================
+   ALERT
+========================= */
+.alert{
+  background:#fee2e2;
+  border:1px solid #fecaca;
+  color:#b91c1c;
+
+  padding:10px;
+  border-radius:8px;
+
+  font-size:13px;
+  margin-bottom:15px;
+}
+
+/* =========================
+   FORM
+========================= */
+.login-form{
+  display:flex;
+  flex-direction:column;
+  gap:16px;
+}
+
+.input-group{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+
+.input-group label{
+  font-size:13px;
+  color:var(--muted);
+}
+
+.login-form input{
+  padding:11px;
+  border-radius:8px;
+  border:1px solid var(--stroke);
+  font-size:14px;
+  outline:none;
+  transition:.2s;
+}
+
+.login-form input:focus{
+  border-color:var(--primary);
+}
+
+/* =========================
+   PASSWORD + EYE BUTTON (RAPIH)
+   - tombol mata punya kotak sendiri
+   - ada jarak (gap) agar tidak menyatu
+========================= */
+.password-field{
+  display:flex;
+  align-items:stretch;
+  gap:10px; /* JARAK antara input dan tombol mata */
+}
+
+.password-field input{
+  flex:1;
+  min-width:0;
+}
+
+/* tombol mata kotak sendiri */
+.eye-btn{
+  width:48px;
+  min-width:48px;
+
+  border:1.6px solid rgba(15,23,42,.18);
+  background:#fff;
+  border-radius:10px;
+
+  display:grid;
+  place-items:center;
+
+  cursor:pointer;
+  padding:0;
+  transition:.2s;
+}
+
+.eye-btn:hover{
+  border-color: rgba(37,99,235,.45);
+}
+
+.eye-btn:focus{ outline:none; }
+.eye-btn:focus-visible{
+  outline:3px solid rgba(37,99,235,.20);
+  outline-offset:2px;
+}
+
+.eye-btn svg{
+  width:20px;
+  height:20px;
+  color:#64748b;
+}
+
+/* state icon */
+.eye-btn .ico-eyeoff{ display:none; }
+.eye-btn.is-show .ico-eye{ display:none; }
+.eye-btn.is-show .ico-eyeoff{ display:block; }
+
+/* =========================
+   BUTTON
+========================= */
+.login-btn{
+  margin-top:10px;
+
+  background:linear-gradient(135deg,var(--primary),var(--primary2));
+  color:#fff;
+
+  border:none;
+  border-radius:10px;
+  padding:12px;
+
+  font-size:14px;
+  cursor:pointer;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+}
+
+/* BUTTON LOADER */
+.btn-loader{
+  width:16px;
+  height:16px;
+
+  border:2px solid rgba(255, 5, 5, 0.4);
+  border-top:2px solid #fff;
+  border-radius:50%;
+
+  display:none;
+  animation:spin 1s linear infinite;
+}
+
+/* FOOTER */
+.login-footer{
+  margin-top:20px;
+  text-align:center;
+  font-size:12px;
+  color:var(--muted);
+}
+
+/* RESPONSIVE */
+@media(max-width:480px){
+  .login-box{ padding:28px 22px; }
+  .logo-circle{ width:50px; height:50px; }
+}
