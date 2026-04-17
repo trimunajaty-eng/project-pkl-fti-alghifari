@@ -1,20 +1,19 @@
 (function () {
-  const menuToggle = document.getElementById("menuToggle");
   const sidebar = document.getElementById("sidebar");
+  const menuToggle = document.getElementById("menuToggle");
 
-  if (menuToggle && sidebar) {
+  if (sidebar && menuToggle) {
     menuToggle.addEventListener("click", function () {
       sidebar.classList.toggle("show");
     });
 
     document.addEventListener("click", function (e) {
-      const isMobile = window.innerWidth <= 860;
-      if (!isMobile) return;
+      if (window.innerWidth > 860) return;
 
-      const clickInsideSidebar = sidebar.contains(e.target);
+      const insideSidebar = sidebar.contains(e.target);
       const clickToggle = menuToggle.contains(e.target);
 
-      if (!clickInsideSidebar && !clickToggle) {
+      if (!insideSidebar && !clickToggle) {
         sidebar.classList.remove("show");
       }
     });

@@ -1,7 +1,6 @@
 <?php
 require_once __DIR__ . "/../config.php";
 
-// proteksi login akademik
 if (empty($_SESSION['role']) || $_SESSION['role'] !== 'akademik') {
   header("Location: ../admin/login.php?tipe=error&pesan=" . urlencode("Silakan login sebagai akademik terlebih dahulu."));
   exit;
@@ -9,7 +8,6 @@ if (empty($_SESSION['role']) || $_SESSION['role'] !== 'akademik') {
 
 $namaLogin = $_SESSION['nama_lengkap'] ?? 'Akademik';
 
-// hitung data sederhana untuk dashboard
 $totalMahasiswa = 0;
 $totalAdmin = 0;
 $totalAkademik = 0;
@@ -29,9 +27,8 @@ if ($q3 && $row = $q3->fetch_assoc()) {
   $totalAkademik = (int)$row['total'];
 }
 
-// ambil mahasiswa terbaru
 $mahasiswaTerbaru = [];
-$sqlMahasiswa = "SELECT nim, nama_mahasiswa, program_studi, kelas, dibuat_pada
+$sqlMahasiswa = "SELECT nim, nama_mahasiswa, program_studi, kelas
                  FROM mahasiswa
                  ORDER BY id_mahasiswa DESC
                  LIMIT 5";
@@ -48,127 +45,110 @@ if ($resMahasiswa) {
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Dashboard Akademik</title>
-
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/css_akademik/dashboard.css">
 </head>
 <body>
-
   <div class="app">
-    <!-- Sidebar -->
     <aside class="sidebar" id="sidebar">
-      <div class="sidebar-top">
-        <div class="logo-box">AK</div>
-        <div>
-          <h2 class="sidebar-title">Akademik</h2>
-          <p class="sidebar-subtitle">Universitas Al-Ghifari</p>
+      <div>
+        <div class="brand">
+          <div class="brand-icon">AK</div>
+          <div>
+            <div class="brand-title">Akademik</div>
+            <div class="brand-subtitle">Unfari</div>
+          </div>
         </div>
-      </div>
 
-      <nav class="menu">
-        <a href="dashboard.php" class="menu-item active">Dashboard</a>
-        <a href="#" class="menu-item">Input Nilai</a>
-        <a href="#" class="menu-item">Data Nilai</a>
-        <a href="#" class="menu-item">Jadwal Akademik</a>
-        <a href="#" class="menu-item">Laporan</a>
-      </nav>
-
-      <div class="sidebar-bottom">
-        <a href="../admin/logout.php" class="logout-btn">Logout</a>
+        <nav class="menu">
+          <a href="dashboard.php" class="menu-item active">Dashboard</a>
+          <a href="nilai/inputnilai.php" class="menu-item">Input Nilai</a>
+          <a href="#" class="menu-item">Data Nilai</a>
+          <a href="#" class="menu-item">Laporan</a>
+          <a href="logout.php" class="menu-item menu-item-danger">Logout</a>
+        </nav>
       </div>
     </aside>
 
-    <!-- Main -->
     <main class="main">
       <header class="topbar">
-        <div>
-          <button class="menu-toggle" id="menuToggle" type="button">☰</button>
-          <h1 class="page-title">Dashboard Akademik</h1>
-          <p class="page-subtitle">Selamat datang, <?= htmlspecialchars($namaLogin); ?></p>
+        <div class="topbar-left">
+          <button type="button" id="menuToggle" class="menu-toggle">☰</button>
+          <div>
+            <h1 class="page-title">Dashboard Akademik</h1>
+            <p class="page-subtitle">Halo, <?= htmlspecialchars($namaLogin); ?></p>
+          </div>
         </div>
 
-        <div class="user-badge">
-          <span class="user-role">Role</span>
-          <strong>Akademik</strong>
+        <div class="user-box">
+          <div class="user-box-label">Role</div>
+          <div class="user-box-value">Akademik</div>
         </div>
       </header>
 
-      <!-- cards -->
       <section class="stats">
-        <div class="stat-card">
-          <div class="stat-label">Total Mahasiswa</div>
+        <div class="card stat-card">
+          <div class="stat-label">Mahasiswa</div>
           <div class="stat-value"><?= number_format($totalMahasiswa); ?></div>
-          <div class="stat-note">Data seluruh mahasiswa</div>
         </div>
 
-        <div class="stat-card">
+        <div class="card stat-card">
           <div class="stat-label">Admin Aktif</div>
           <div class="stat-value"><?= number_format($totalAdmin); ?></div>
-          <div class="stat-note">User admin aktif</div>
         </div>
 
-        <div class="stat-card">
+        <div class="card stat-card">
           <div class="stat-label">Akademik Aktif</div>
           <div class="stat-value"><?= number_format($totalAkademik); ?></div>
-          <div class="stat-note">User akademik aktif</div>
         </div>
       </section>
 
-      <!-- content -->
-      <section class="content-grid">
-        <div class="panel">
-          <div class="panel-head">
-            <h2>Informasi Dashboard</h2>
+      <section class="grid">
+        <div class="card">
+          <div class="card-head">
+            <h2>Menu Cepat</h2>
           </div>
-          <div class="panel-body">
-            <p>
-              Halaman ini digunakan untuk memantau data akademik secara umum.
-              Nantinya bagian akademik dapat mengelola nilai mahasiswa, melihat rekap data,
-              serta memantau aktivitas akademik lainnya.
-            </p>
-
-            <ul class="info-list">
-              <li>Melihat ringkasan jumlah mahasiswa</li>
-              <li>Mengelola data nilai akademik</li>
-              <li>Melihat jadwal dan laporan akademik</li>
-              <li>Monitoring data pengguna akademik</li>
-            </ul>
+          <div class="card-body">
+            <div class="quick-links">
+              <a href="inputnilai.php" class="quick-link">Input Nilai Mahasiswa</a>
+              <a href="#" class="quick-link">Lihat Data Nilai</a>
+              <a href="#" class="quick-link">Cetak Rekap</a>
+            </div>
           </div>
         </div>
 
-        <div class="panel">
-          <div class="panel-head">
+        <div class="card">
+          <div class="card-head">
             <h2>Mahasiswa Terbaru</h2>
           </div>
-          <div class="panel-body">
-            <?php if (count($mahasiswaTerbaru) > 0): ?>
+          <div class="card-body">
+            <?php if (!empty($mahasiswaTerbaru)): ?>
               <div class="table-wrap">
                 <table class="table">
                   <thead>
                     <tr>
                       <th>NIM</th>
                       <th>Nama</th>
-                      <th>Program Studi</th>
+                      <th>Prodi</th>
                       <th>Kelas</th>
                     </tr>
                   </thead>
                   <tbody>
-                    <?php foreach ($mahasiswaTerbaru as $mhs): ?>
+                    <?php foreach ($mahasiswaTerbaru as $m): ?>
                       <tr>
-                        <td><?= htmlspecialchars($mhs['nim']); ?></td>
-                        <td><?= htmlspecialchars($mhs['nama_mahasiswa']); ?></td>
-                        <td><?= htmlspecialchars($mhs['program_studi']); ?></td>
-                        <td><?= htmlspecialchars($mhs['kelas']); ?></td>
+                        <td><?= htmlspecialchars($m['nim']); ?></td>
+                        <td><?= htmlspecialchars($m['nama_mahasiswa']); ?></td>
+                        <td><?= htmlspecialchars($m['program_studi']); ?></td>
+                        <td><?= htmlspecialchars($m['kelas']); ?></td>
                       </tr>
                     <?php endforeach; ?>
                   </tbody>
                 </table>
               </div>
             <?php else: ?>
-              <p class="empty-text">Belum ada data mahasiswa.</p>
+              <div class="empty-text">Belum ada data mahasiswa.</div>
             <?php endif; ?>
           </div>
         </div>
