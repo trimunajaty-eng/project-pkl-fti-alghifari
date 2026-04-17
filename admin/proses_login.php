@@ -20,6 +20,12 @@ $sql = "SELECT id_user, role, username, password_hash, nama_lengkap, status
         LIMIT 1";
 
 $stmt = $conn->prepare($sql);
+
+if (!$stmt) {
+  header("Location: login.php?tipe=error&pesan=" . urlencode("Terjadi kesalahan pada sistem."));
+  exit;
+}
+
 $stmt->bind_param("s", $username);
 $stmt->execute();
 $res = $stmt->get_result();
@@ -33,15 +39,16 @@ if (!$res || $res->num_rows !== 1) {
 $user = $res->fetch_assoc();
 $stmt->close();
 
-// status akun
+// cek status akun
 if (($user['status'] ?? '') !== 'aktif') {
   header("Location: login.php?tipe=error&pesan=" . urlencode("Akun sedang nonaktif."));
   exit;
 }
 
-// hanya role admin
-if (($user['role'] ?? '') !== 'admin') {
-  header("Location: login.php?tipe=error&pesan=" . urlencode("Akun ini bukan admin."));
+// hanya izinkan admin dan akademik
+$role = $user['role'] ?? '';
+if (!in_array($role, ['admin', 'akademik'], true)) {
+  header("Location: login.php?tipe=error&pesan=" . urlencode("Akun ini tidak memiliki akses ke halaman ini."));
   exit;
 }
 
@@ -51,15 +58,29 @@ if (!password_verify($password, $user['password_hash'])) {
   exit;
 }
 
-// sukses login
+// bersihkan session lama
+session_regenerate_id(true);
+
+// set session login
 $_SESSION['id_user']      = (int)$user['id_user'];
 $_SESSION['role']         = $user['role'];
 $_SESSION['username']     = $user['username'];
 $_SESSION['nama_lengkap'] = $user['nama_lengkap'];
 
-// flash login sukses (1x)
+// flash sukses
 $_SESSION['flash_login_ok'] = 1;
 
-header("Location: dashboard.php?login=1");
-exit;
+// redirect sesuai role
+if ($role === 'admin') {
+  header("Location: dashboard.php?login=1");
+  exit;
+}
 
+if ($role === 'akademik') {
+  header("Location: ../akademik/dashboard.php?login=1");
+  exit;
+}
+
+// fallback
+header("Location: login.php?tipe=error&pesan=" . urlencode("Role tidak dikenali."));
+exit;
