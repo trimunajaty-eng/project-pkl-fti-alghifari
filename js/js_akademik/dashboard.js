@@ -132,20 +132,14 @@
     filtered.forEach(function (item) {
       const tahun = String(item.tahun || "");
       if (!tahun) return;
-
-      if (!grouped[tahun]) {
-        grouped[tahun] = 0;
-      }
+      if (!grouped[tahun]) grouped[tahun] = 0;
       grouped[tahun] += Number(item.total || 0);
     });
 
     return Object.keys(grouped)
       .sort(function (a, b) { return Number(a) - Number(b); })
       .map(function (tahun) {
-        return {
-          tahun: tahun,
-          total: grouped[tahun]
-        };
+        return { tahun: tahun, total: grouped[tahun] };
       });
   }
 
@@ -199,6 +193,67 @@
     return d;
   }
 
+  const studentRows = document.querySelectorAll(".student-row");
+  const studentModal = document.getElementById("studentModal");
+  const studentModalOverlay = document.getElementById("studentModalOverlay");
+  const studentModalClose = document.getElementById("studentModalClose");
+
+  const modalNim = document.getElementById("modalNim");
+  const modalNama = document.getElementById("modalNama");
+  const modalProdi = document.getElementById("modalProdi");
+  const modalKelas = document.getElementById("modalKelas");
+  const modalJk = document.getElementById("modalJk");
+
+  function openStudentModal(data) {
+    if (!studentModal) return;
+
+    if (modalNim) modalNim.textContent = data.nim || "-";
+    if (modalNama) modalNama.textContent = data.nama || "-";
+    if (modalProdi) modalProdi.textContent = data.prodi || "-";
+    if (modalKelas) modalKelas.textContent = data.kelas || "-";
+    if (modalJk) modalJk.textContent = data.jk || "-";
+
+    studentModal.classList.add("show");
+    body.style.overflow = "hidden";
+  }
+
+  function closeStudentModal() {
+    if (!studentModal) return;
+    studentModal.classList.remove("show");
+    body.style.overflow = "";
+  }
+
+  studentRows.forEach(function (row) {
+    row.addEventListener("click", function () {
+      openStudentModal({
+        nim: row.getAttribute("data-nim"),
+        nama: row.getAttribute("data-nama"),
+        prodi: row.getAttribute("data-prodi"),
+        kelas: row.getAttribute("data-kelas"),
+        jk: row.getAttribute("data-jk")
+      });
+    });
+
+    row.addEventListener("keydown", function (e) {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        row.click();
+      }
+    });
+  });
+
+  if (studentModalOverlay) {
+    studentModalOverlay.addEventListener("click", closeStudentModal);
+  }
+
+  if (studentModalClose) {
+    studentModalClose.addEventListener("click", closeStudentModal);
+  }
+
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") closeStudentModal();
+  });
+
   function renderChart() {
     if (!chartCanvas) return;
 
@@ -206,11 +261,11 @@
     updateSummary(series);
 
     const width = Math.max(chartCanvas.clientWidth, 320);
-    const height = window.innerWidth <= 640 ? 220 : 240;
+    const height = window.innerWidth <= 640 ? 200 : 220;
 
     if (!series.length) {
       chartCanvas.innerHTML = `
-        <div style="height:${height}px;display:flex;align-items:center;justify-content:center;color:#6b7280;font-size:12px;">
+        <div style="height:${height}px;display:flex;align-items:center;justify-content:center;color:#6b7280;font-size:11px;">
           Belum ada data yang cocok dengan filter.
         </div>
       `;
@@ -219,11 +274,14 @@
       return;
     }
 
-    const padding = { top: 18, right: 18, bottom: 34, left: 10 };
+    const padding = { top: 16, right: 16, bottom: 30, left: 8 };
     const innerWidth = width - padding.left - padding.right;
     const innerHeight = height - padding.top - padding.bottom;
 
-    const maxRaw = Math.max.apply(null, series.map(function (item) { return item.total; }).concat([1]));
+    const maxRaw = Math.max.apply(null, series.map(function (item) {
+      return item.total;
+    }).concat([1]));
+
     const maxValue = maxRaw <= 4 ? 4 : Math.ceil(maxRaw / 2) * 2;
     const midValue = Math.round(maxValue / 2);
 
@@ -257,14 +315,14 @@
     }).join("");
 
     const xLabels = points.map(function (point) {
-      return `<text x="${point.x}" y="${height - 10}" text-anchor="middle" fill="#64748b" font-size="10.5" font-family="Poppins, Arial, sans-serif">${point.label}</text>`;
+      return `<text x="${point.x}" y="${height - 8}" text-anchor="middle" fill="#64748b" font-size="9.5" font-family="Poppins, Arial, sans-serif">${point.label}</text>`;
     }).join("");
 
     const pointNodes = points.map(function (point) {
       return `
         <g>
-          <circle cx="${point.x}" cy="${point.y}" r="4.8" fill="#fff" stroke="#ef4444" stroke-width="2.8"></circle>
-          <text x="${point.x}" y="${point.y - 10}" text-anchor="middle" fill="#111827" font-size="10.5" font-weight="600" font-family="Poppins, Arial, sans-serif">${point.value}</text>
+          <circle cx="${point.x}" cy="${point.y}" r="4.2" fill="#fff" stroke="#ef4444" stroke-width="2.4"></circle>
+          <text x="${point.x}" y="${point.y - 9}" text-anchor="middle" fill="#111827" font-size="9.5" font-weight="600" font-family="Poppins, Arial, sans-serif">${point.value}</text>
         </g>
       `;
     }).join("");
@@ -284,7 +342,7 @@
 
         ${gridLines}
         <path d="${areaPath}" fill="url(#chartAreaGradient)"></path>
-        <path d="${linePath}" fill="none" stroke="url(#chartLineGradient)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"></path>
+        <path d="${linePath}" fill="none" stroke="url(#chartLineGradient)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path>
         ${pointNodes}
         ${xLabels}
       </svg>
