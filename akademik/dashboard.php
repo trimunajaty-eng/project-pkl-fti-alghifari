@@ -7,6 +7,7 @@ if (empty($_SESSION['role']) || $_SESSION['role'] !== 'akademik') {
 }
 
 $currentPage = 'dashboard';
+$baseUrl = '';
 $namaLogin = $_SESSION['nama_lengkap'] ?? 'Akademik';
 
 $totalMahasiswa = 0;
