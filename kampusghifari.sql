@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Apr 17, 2026 at 06:42 AM
+-- Generation Time: Apr 21, 2026 at 02:42 AM
 -- Server version: 8.0.30
 -- PHP Version: 8.1.10
 
@@ -102,8 +102,7 @@ CREATE TABLE `mahasiswa` (
 --
 
 INSERT INTO `mahasiswa` (`id_mahasiswa`, `tanggal_registrasi`, `periode_pendaftaran`, `jenis_pendaftaran`, `jalur_pendaftaran`, `program_studi`, `kelas`, `nim`, `jalur_keuangan`, `nama_mahasiswa`, `tempat_lahir`, `tanggal_lahir`, `jenis_kelamin`, `golongan_darah`, `agama`, `ukuran_seragam`, `nik`, `nisn`, `npwp`, `kewarganegaraan`, `provinsi`, `kab_kota`, `kecamatan`, `kelurahan`, `jalan`, `dusun`, `rt`, `rw`, `kode_pos`, `jenis_tinggal`, `alat_transportasi`, `telepon`, `hp`, `email`, `penerima_kps`, `no_kps`, `nama_ayah`, `tanggal_lahir_ayah`, `pendidikan_ayah`, `pekerjaan_ayah`, `penghasilan_ayah`, `nama_ibu`, `tanggal_lahir_ibu`, `pendidikan_ibu`, `pekerjaan_ibu`, `penghasilan_ibu`, `nama_wali`, `tanggal_lahir_wali`, `pendidikan_wali`, `pekerjaan_wali`, `penghasilan_wali`, `asal_sekolah`, `no_ijazah`, `alamat_sekolah`, `kodepos_sekolah`, `email_sekolah`, `telepon_sekolah`, `website_sekolah`, `asal_jurusan`, `sks_diakui`, `asal_perguruan_tinggi`, `asal_program_studi`, `akun_dicetak`, `akun_dicetak_pada`, `id_user`, `dibuat_pada`, `diubah_pada`) VALUES
-(1, '2026-02-27', '2025/2026 Ganjil', 'Peserta didik baru', 'Prestasi', 'Sistem Informasi S1', 'Reguler', '265720101', '-', 'Akbar Maulana', 'Banjar', '2026-02-27', 'Laki-laki', 'O', 'Islam', 'L', '87438783873847824783', '843473878387982', '48484398594', 'WNI', 'Jawa Barat', 'Banjar', 'Sukarame', 'Sukarame', 'suk', 'suk', '302', '2929', '46313', 'Bersama Orang Tua', 'Jalan Kaki', '34434343495339032', '081234567890', 'a2@gmail.com', 'Tidak', '-', 'bapak', '2026-02-27', 'SMA', 'Wiraswasta', 'Rp. 500.000 - Rp. 999.000', 'lilis', '2026-02-27', 'SMA', 'Wiraswasta', 'Rp. 500.000 - Rp. 999.000', NULL, NULL, NULL, NULL, NULL, 'SMKN 1 BANJAR', '9233948384384938', 'Balokang', '46313', 'a@gmailc.com', '4234324343', 'sjcnajsnc', 'rpl', NULL, NULL, NULL, 1, '2026-03-02 04:54:24', 5, '2026-02-27 06:52:14', '2026-03-02 04:54:24'),
-(2, '2026-03-02', '2025/2026 Ganjil', 'Peserta didik baru', 'Reguler', 'Teknik Informatika S1', 'Reguler A1', '265520201', '-', 'Fikri Nudin', 'Jakarta', '2007-01-01', 'Laki-laki', 'AB', 'Islam', 'XL', '123456789000', '123456789000', '123456789000', 'WNI', 'Jawa Barat', 'Banjar', 'Banjar', 'Balokang', 'Jl. Pahlawan permai', 'Balokang', '12', '13', '46313', 'Bersama Orang Tua', 'Jalan Kaki', '081234567890', '081234567890', 'fikri@gmail.com', 'Tidak', NULL, 'Husen', '1971-01-01', 'S1', 'PNS/TNI/Polri', 'Rp. 5.000.000 - Rp. 20.000.000', 'Siti', '1975-10-15', 'S1', 'PNS/TNI/Polri', 'Rp. 5.000.000 - Rp. 20.000.000', NULL, NULL, NULL, NULL, NULL, 'SMKN 1 BANDUNG', '123456789000', 'Bandung Pusat', '12345', 'smkn1bandung@gmail.com', '12345', 'smeabandung.id', 'Akuntansi', NULL, NULL, NULL, 0, NULL, NULL, '2026-03-02 06:57:40', NULL);
+(3, '2026-04-21', '2026/2027 Genap', 'Peserta didik baru', 'Reguler', 'Sistem Informasi S1', 'Reguler A1', 'FTI265720102', '-', 'Akbar', 'Jakarta', '2026-04-21', 'Laki-laki', 'O', 'Islam', 'XL', '123456789012', '123456789012', '123456789012', 'WNI', 'jawa barat', 'Banjar', 'Banjar', 'Sukarame', 'Jl. Gang setia 123', 'Sukarame', '01', '02', '46313', 'Bersama Orang Tua', 'Sepeda', '082295080124', '082295080124', 'akbar@gmail.com', 'Tidak', NULL, 'Sumanto', '1970-01-01', 'S1', 'Wirausaha', 'Rp. 2.000.000 - Rp. 4.999.999', 'Lilis', '1965-01-01', 'S1', 'Wirausaha', 'Rp. 2.000.000 - Rp. 4.999.999', NULL, NULL, NULL, NULL, NULL, 'SMKN 1 Banjar', '123456789012', 'Link. Parung lesang', '46313', 'smkn1banjar@gmail.com', '081234567890', 'smkn1banjar.sch.id', 'Rekayasa Perangkat Lunak', NULL, NULL, NULL, 1, '2026-04-21 02:38:24', 7, '2026-04-21 02:33:50', '2026-04-21 02:38:24');
 
 -- --------------------------------------------------------
 
@@ -159,12 +158,35 @@ INSERT INTO `master_opsi_dropdown` (`id_opsi`, `grup`, `label`, `value`, `urutan
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `nilai_mahasiswa`
+--
+
+CREATE TABLE `nilai_mahasiswa` (
+  `id_nilai` int NOT NULL,
+  `id_mahasiswa` int NOT NULL,
+  `tahun_akademik` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `semester` enum('Ganjil','Genap') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `tugas` decimal(5,2) DEFAULT NULL,
+  `uts` decimal(5,2) DEFAULT NULL,
+  `uas` decimal(5,2) DEFAULT NULL,
+  `kehadiran` decimal(5,2) DEFAULT NULL,
+  `nilai_akhir` decimal(5,2) DEFAULT NULL,
+  `grade` varchar(5) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `keterangan` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `id_user_input` int DEFAULT NULL,
+  `dibuat_pada` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `diubah_pada` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `users`
 --
 
 CREATE TABLE `users` (
   `id_user` int NOT NULL,
-  `role` enum('admin','dosen','mahasiswa') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `role` enum('admin','akademik','dosen','mahasiswa') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `username` varchar(60) COLLATE utf8mb4_unicode_ci NOT NULL,
   `password_hash` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `nama_lengkap` varchar(150) COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -179,7 +201,8 @@ CREATE TABLE `users` (
 
 INSERT INTO `users` (`id_user`, `role`, `username`, `password_hash`, `nama_lengkap`, `status`, `dibuat_pada`, `diubah_pada`) VALUES
 (1, 'admin', 'unfari', '$2y$10$oURFyI8nefr0wk2D4wei/.qTZtt8WzK36xWNddUKlc8Kt.kz34AVO', 'Universitas Al-ghifari', 'aktif', '2026-02-03 14:21:15', '2026-02-04 04:40:19'),
-(5, 'mahasiswa', '265720101', '$2y$10$3noMDmIAJ4tPbVENx6YJs.YqQ2i28ULr5xDOX/z1s3IMgZeh1lit.', 'Akbar Maulana', 'aktif', '2026-03-02 04:54:24', '2026-04-02 02:43:09');
+(6, 'akademik', 'infakd', '$2y$10$Uqg398LlrbUNeRuaa4luAO2YWJsJIW1.4dJp979MXpy6Cb90R915C', 'Bagian Akademik', 'aktif', '2026-04-17 07:02:30', '2026-04-17 07:03:20'),
+(7, 'mahasiswa', 'FTI265720102', '$2y$10$TBWaDivckljcWu3cVzChmuUhCXuAXSvGunH8sb9f9LziPTytoEMe.', 'Akbar', 'aktif', '2026-04-21 02:38:24', '2026-04-21 02:40:04');
 
 --
 -- Indexes for dumped tables
@@ -200,6 +223,13 @@ ALTER TABLE `master_opsi_dropdown`
   ADD UNIQUE KEY `uniq_grup_value` (`grup`,`value`);
 
 --
+-- Indexes for table `nilai_mahasiswa`
+--
+ALTER TABLE `nilai_mahasiswa`
+  ADD PRIMARY KEY (`id_nilai`),
+  ADD UNIQUE KEY `uniq_nilai_mahasiswa_periode` (`id_mahasiswa`,`tahun_akademik`,`semester`);
+
+--
 -- Indexes for table `users`
 --
 ALTER TABLE `users`
@@ -214,7 +244,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `mahasiswa`
 --
 ALTER TABLE `mahasiswa`
-  MODIFY `id_mahasiswa` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id_mahasiswa` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `master_opsi_dropdown`
@@ -223,10 +253,16 @@ ALTER TABLE `master_opsi_dropdown`
   MODIFY `id_opsi` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=53;
 
 --
+-- AUTO_INCREMENT for table `nilai_mahasiswa`
+--
+ALTER TABLE `nilai_mahasiswa`
+  MODIFY `id_nilai` int NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id_user` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id_user` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
