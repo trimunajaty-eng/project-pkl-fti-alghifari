@@ -1,5 +1,6 @@
 (function () {
   const body = document.body;
+  const app = document.getElementById("app");
   const sidebar = document.getElementById("sidebar");
   const menuToggle = document.getElementById("menuToggle");
   const sidebarOverlay = document.getElementById("sidebarOverlay");
@@ -16,6 +17,7 @@
   const filterGenderLabel = document.getElementById("filterGenderLabel");
 
   const rawData = Array.isArray(window.dashboardChartData) ? window.dashboardChartData : [];
+  const KEY_COLLAPSE = "ak_sidebar_collapsed";
 
   let selectedProdi = "all";
   let selectedGender = "all";
@@ -24,8 +26,34 @@
     return window.innerWidth <= 860;
   }
 
+  function syncBurgerIcon() {
+    if (!menuToggle) return;
+
+    const isX =
+      (isMobile() && body.classList.contains("sidebar-open")) ||
+      (!isMobile() && body.classList.contains("sidebar-collapsed"));
+
+    menuToggle.classList.toggle("is-x", isX);
+  }
+
+  function applyPersistedCollapse() {
+    if (isMobile()) return;
+
+    const saved = localStorage.getItem(KEY_COLLAPSE);
+    if (saved === "1") body.classList.add("sidebar-collapsed");
+    else body.classList.remove("sidebar-collapsed");
+
+    syncBurgerIcon();
+  }
+
+  function saveCollapseState() {
+    const v = body.classList.contains("sidebar-collapsed") ? "1" : "0";
+    localStorage.setItem(KEY_COLLAPSE, v);
+  }
+
   function closeMobileSidebar() {
     body.classList.remove("sidebar-open");
+    syncBurgerIcon();
   }
 
   function toggleSidebar() {
@@ -33,11 +61,19 @@
       body.classList.toggle("sidebar-open");
     } else {
       body.classList.toggle("sidebar-collapsed");
+      saveCollapseState();
     }
+    syncBurgerIcon();
   }
 
+  applyPersistedCollapse();
+
   if (menuToggle) {
-    menuToggle.addEventListener("click", toggleSidebar);
+    menuToggle.addEventListener("click", function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      toggleSidebar();
+    });
   }
 
   if (sidebarOverlay) {
@@ -58,6 +94,9 @@
   window.addEventListener("resize", function () {
     if (!isMobile()) {
       closeMobileSidebar();
+      applyPersistedCollapse();
+    } else {
+      syncBurgerIcon();
     }
     renderChart();
   });
@@ -132,6 +171,7 @@
     filtered.forEach(function (item) {
       const tahun = String(item.tahun || "");
       if (!tahun) return;
+
       if (!grouped[tahun]) grouped[tahun] = 0;
       grouped[tahun] += Number(item.total || 0);
     });
@@ -251,7 +291,11 @@
   }
 
   document.addEventListener("keydown", function (e) {
-    if (e.key === "Escape") closeStudentModal();
+    if (e.key === "Escape") {
+      closeStudentModal();
+      closeAllPopups();
+      closeMobileSidebar();
+    }
   });
 
   function renderChart() {
@@ -350,4 +394,5 @@
   }
 
   renderChart();
+  syncBurgerIcon();
 })();

@@ -67,25 +67,27 @@ if ($resChart) {
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../css/css_akademik/dashboard.css">
+  <link rel="stylesheet" href="../css/css_akademik/dashboard.css?v=2">
 </head>
 <body>
-  <div class="app">
+  <div class="app" id="app">
     <?php include __DIR__ . "/sidebarmenu.php"; ?>
 
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
     <main class="main">
       <header class="topbar">
-        <button type="button" id="menuToggle" class="menu-toggle" aria-label="Toggle menu">
-          <span></span>
-          <span></span>
-          <span></span>
-        </button>
+        <div class="top-left">
+          <button type="button" id="menuToggle" class="menu-toggle" aria-label="Toggle menu">
+            <span></span>
+            <span></span>
+            <span></span>
+          </button>
 
-        <div class="topbar-text">
-          <h1 class="page-title">Dashboard Akademik</h1>
-          <p class="page-subtitle">Halo, <?= htmlspecialchars($namaLogin); ?>.</p>
+          <div class="topbar-text">
+            <h1 class="page-title">Dashboard Akademik</h1>
+            <p class="page-subtitle">Halo, <?= htmlspecialchars($namaLogin); ?>.</p>
+          </div>
         </div>
 
         <div class="topbar-right">
@@ -93,7 +95,7 @@ if ($resChart) {
         </div>
       </header>
 
-      <div class="main-content">
+      <div class="content">
         <section class="hero">
           <div class="hero-content">
             <div class="hero-kicker">Sistem Akademik</div>
@@ -131,7 +133,7 @@ if ($resChart) {
           </div>
         </section>
 
-        <section class="content-grid single-grid">
+        <section class="content-grid">
           <div class="card chart-card">
             <div class="card-head card-head-flex">
               <div>
@@ -145,7 +147,6 @@ if ($resChart) {
                     <span>Program Studi</span>
                     <strong id="filterProdiLabel">Semua Program Studi</strong>
                   </button>
-
                   <div class="popup-menu" id="popupProdi">
                     <button type="button" class="popup-item active" data-filter-group="prodi" data-value="all">Semua Program Studi</button>
                     <button type="button" class="popup-item" data-filter-group="prodi" data-value="Teknik Informatika S1">Teknik Informatika S1</button>
@@ -158,7 +159,6 @@ if ($resChart) {
                     <span>Jenis Kelamin</span>
                     <strong id="filterGenderLabel">Semua</strong>
                   </button>
-
                   <div class="popup-menu" id="popupGender">
                     <button type="button" class="popup-item active" data-filter-group="gender" data-value="all">Semua</button>
                     <button type="button" class="popup-item" data-filter-group="gender" data-value="Laki-laki">Laki-laki</button>
@@ -196,7 +196,7 @@ if ($resChart) {
           </div>
         </section>
 
-        <section class="bottom-grid single-grid">
+        <section class="bottom-grid">
           <div class="card">
             <div class="card-head">
               <h2>5 Mahasiswa Terbaru</h2>
@@ -252,34 +252,17 @@ if ($resChart) {
 
   <div class="student-modal" id="studentModal">
     <div class="student-modal-overlay" id="studentModalOverlay"></div>
-
     <div class="student-modal-box" role="dialog" aria-modal="true" aria-labelledby="studentModalTitle">
       <div class="student-modal-head">
         <h3 id="studentModalTitle">Biodata Mahasiswa</h3>
         <button type="button" class="student-modal-close" id="studentModalClose" aria-label="Tutup popup">×</button>
       </div>
-
       <div class="student-modal-body">
-        <div class="student-detail-item">
-          <span>NIM</span>
-          <strong id="modalNim">-</strong>
-        </div>
-        <div class="student-detail-item">
-          <span>Nama</span>
-          <strong id="modalNama">-</strong>
-        </div>
-        <div class="student-detail-item">
-          <span>Program Studi</span>
-          <strong id="modalProdi">-</strong>
-        </div>
-        <div class="student-detail-item">
-          <span>Kelas</span>
-          <strong id="modalKelas">-</strong>
-        </div>
-        <div class="student-detail-item">
-          <span>Jenis Kelamin</span>
-          <strong id="modalJk">-</strong>
-        </div>
+        <div class="student-detail-item"><span>NIM</span><strong id="modalNim">-</strong></div>
+        <div class="student-detail-item"><span>Nama</span><strong id="modalNama">-</strong></div>
+        <div class="student-detail-item"><span>Program Studi</span><strong id="modalProdi">-</strong></div>
+        <div class="student-detail-item"><span>Kelas</span><strong id="modalKelas">-</strong></div>
+        <div class="student-detail-item"><span>Jenis Kelamin</span><strong id="modalJk">-</strong></div>
       </div>
     </div>
   </div>
@@ -287,6 +270,6 @@ if ($resChart) {
   <script>
     window.dashboardChartData = <?= json_encode($chartData, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES); ?>;
   </script>
-  <script src="../js/js_akademik/dashboard.js"></script>
+  <script src="../js/js_akademik/dashboard.js?v=2"></script>
 </body>
 </html>
