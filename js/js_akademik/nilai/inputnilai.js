@@ -1,5 +1,7 @@
 (function () {
   const body = document.body;
+  const html = document.documentElement;
+
   const sidebar = document.getElementById("sidebar");
   const menuToggle = document.getElementById("menuToggle");
   const sidebarOverlay = document.getElementById("sidebarOverlay");
@@ -22,6 +24,15 @@
   const grade = document.getElementById("grade");
   const keterangan = document.getElementById("keterangan");
 
+  const studentSearch = document.getElementById("studentSearch");
+  const studentList = document.getElementById("studentList");
+  const emptySearch = document.getElementById("emptySearch");
+  const workspace = document.getElementById("workspace");
+  const studentLinks = document.querySelectorAll("[data-student-link='1']");
+
+  const filterJurusan = document.getElementById("filterJurusan");
+  const filterDosen = document.getElementById("filterDosen");
+
   const KEY_COLLAPSE = "ak_sidebar_collapsed";
 
   function isMobile() {
@@ -41,7 +52,7 @@
   function applyPersistedCollapse() {
     if (isMobile()) {
       body.classList.remove("sidebar-collapsed");
-      document.documentElement.classList.remove("sidebar-collapsed-init");
+      html.classList.remove("sidebar-collapsed-init");
       return;
     }
 
@@ -53,7 +64,7 @@
       body.classList.remove("sidebar-collapsed");
     }
 
-    document.documentElement.classList.remove("sidebar-collapsed-init");
+    html.classList.remove("sidebar-collapsed-init");
     syncBurgerIcon();
   }
 
@@ -210,6 +221,76 @@
       el.addEventListener("input", hitungNilai);
     }
   });
+
+  if (studentSearch && studentList) {
+    studentSearch.addEventListener("input", function () {
+      const keyword = studentSearch.value.trim().toLowerCase();
+      const items = studentList.querySelectorAll(".student-item");
+      let visibleCount = 0;
+
+      items.forEach(function (item) {
+        const haystack = (item.getAttribute("data-search") || "").toLowerCase();
+        const match = keyword === "" || haystack.indexOf(keyword) !== -1;
+        item.hidden = !match;
+        if (match) visibleCount++;
+      });
+
+      if (emptySearch) {
+        emptySearch.hidden = visibleCount !== 0;
+      }
+    });
+  }
+
+  studentLinks.forEach(function (link) {
+    link.addEventListener("click", function (e) {
+      if (!workspace) return;
+      e.preventDefault();
+
+      studentLinks.forEach(function (item) {
+        item.classList.remove("is-leaving");
+      });
+
+      link.classList.add("is-leaving");
+      workspace.classList.add("selected");
+
+      setTimeout(function () {
+        window.location.href = link.href;
+      }, 220);
+    });
+  });
+
+  const allDosen = Array.isArray(window.__ALL_DOSEN__) ? window.__ALL_DOSEN__ : [];
+  const selectedDosenId = Number(window.__SELECTED_DOSEN_ID__ || 0);
+
+  function renderDosenOptions(jurusan, selectedId) {
+    if (!filterDosen) return;
+
+    filterDosen.innerHTML = '<option value="">-- Pilih Dosen --</option>';
+
+    if (!jurusan) return;
+
+    const filtered = allDosen.filter(function (item) {
+      return String(item.program_studi || '').trim() === String(jurusan).trim();
+    });
+
+    filtered.forEach(function (dosen) {
+      const option = document.createElement("option");
+      option.value = dosen.id_dosen;
+      option.textContent = dosen.nama_dosen + " (" + dosen.kode_dosen + ")";
+      if (Number(dosen.id_dosen) === Number(selectedId)) {
+        option.selected = true;
+      }
+      filterDosen.appendChild(option);
+    });
+  }
+
+  if (filterJurusan && filterDosen) {
+    renderDosenOptions(filterJurusan.value, selectedDosenId);
+
+    filterJurusan.addEventListener("change", function () {
+      renderDosenOptions(filterJurusan.value, 0);
+    });
+  }
 
   document.addEventListener("keydown", function (e) {
     if (e.key === "Escape") {

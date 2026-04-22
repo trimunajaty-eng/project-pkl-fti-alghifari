@@ -12,14 +12,19 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 $id_mahasiswa   = (int)($_POST['id_mahasiswa'] ?? 0);
+$id_dosen       = (int)($_POST['id_dosen'] ?? 0);
 $tahun_akademik = trim($_POST['tahun_akademik'] ?? '');
 $semester       = trim($_POST['semester'] ?? '');
+$periode        = trim($_POST['periode'] ?? '');
+$jurusan        = trim($_POST['jurusan'] ?? '');
+$page           = max(1, (int)($_POST['page'] ?? 1));
+
 $tugas          = (float)($_POST['tugas'] ?? 0);
 $uts            = (float)($_POST['uts'] ?? 0);
 $uas            = (float)($_POST['uas'] ?? 0);
 $kehadiran      = (float)($_POST['kehadiran'] ?? 0);
 
-if ($id_mahasiswa <= 0 || $tahun_akademik === '' || $semester === '') {
+if ($id_mahasiswa <= 0 || $id_dosen <= 0 || $tahun_akademik === '' || $semester === '' || $periode === '' || $jurusan === '') {
   header("Location: inputnilai.php?tipe=error&pesan=" . urlencode("Data input nilai belum lengkap."));
   exit;
 }
@@ -45,9 +50,14 @@ if ($nilai_akhir >= 85) {
 
 $id_user_input = (int)($_SESSION['id_user'] ?? 0);
 
-// cek data sudah ada atau belum
-$stmtCek = $conn->prepare("SELECT id_nilai FROM nilai_mahasiswa WHERE id_mahasiswa = ? AND tahun_akademik = ? AND semester = ? LIMIT 1");
-$stmtCek->bind_param("iss", $id_mahasiswa, $tahun_akademik, $semester);
+$stmtCek = $conn->prepare("SELECT id_nilai
+                           FROM nilai_mahasiswa
+                           WHERE id_mahasiswa = ?
+                             AND id_dosen = ?
+                             AND tahun_akademik = ?
+                             AND semester = ?
+                           LIMIT 1");
+$stmtCek->bind_param("iiss", $id_mahasiswa, $id_dosen, $tahun_akademik, $semester);
 $stmtCek->execute();
 $resCek = $stmtCek->get_result();
 
@@ -57,10 +67,10 @@ if ($resCek && $resCek->num_rows === 1) {
   $stmtCek->close();
 
   $stmtUpdate = $conn->prepare("UPDATE nilai_mahasiswa
-                                SET tugas = ?, uts = ?, uas = ?, kehadiran = ?, nilai_akhir = ?, grade = ?, keterangan = ?, id_user_input = ?
+                                SET tugas = ?, uts = ?, uas = ?, kehadiran = ?, nilai_akhir = ?, grade = ?, keterangan = ?, id_user_input = ?, id_dosen = ?
                                 WHERE id_nilai = ?");
   $stmtUpdate->bind_param(
-    "dddddssii",
+    "dddddssiii",
     $tugas,
     $uts,
     $uas,
@@ -69,23 +79,33 @@ if ($resCek && $resCek->num_rows === 1) {
     $grade,
     $keterangan,
     $id_user_input,
+    $id_dosen,
     $id_nilai
   );
   $stmtUpdate->execute();
   $stmtUpdate->close();
 
-  header("Location: inputnilai.php?periode=" . urlencode($tahun_akademik) . "&semester=" . urlencode($semester) . "&id_mahasiswa=" . $id_mahasiswa . "&tipe=success&pesan=" . urlencode("Nilai berhasil diperbarui."));
+  header("Location: inputnilai.php?" . http_build_query([
+    'periode' => $periode,
+    'jurusan' => $jurusan,
+    'id_dosen' => $id_dosen,
+    'id_mahasiswa' => $id_mahasiswa,
+    'page' => $page,
+    'tipe' => 'success',
+    'pesan' => 'Nilai berhasil diperbarui.'
+  ]));
   exit;
 }
 
 $stmtCek->close();
 
 $stmtInsert = $conn->prepare("INSERT INTO nilai_mahasiswa
-  (id_mahasiswa, tahun_akademik, semester, tugas, uts, uas, kehadiran, nilai_akhir, grade, keterangan, id_user_input)
-  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+  (id_mahasiswa, id_dosen, tahun_akademik, semester, tugas, uts, uas, kehadiran, nilai_akhir, grade, keterangan, id_user_input)
+  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 $stmtInsert->bind_param(
-  "issddddddsi",
+  "iissddddddsi",
   $id_mahasiswa,
+  $id_dosen,
   $tahun_akademik,
   $semester,
   $tugas,
@@ -100,5 +120,13 @@ $stmtInsert->bind_param(
 $stmtInsert->execute();
 $stmtInsert->close();
 
-header("Location: inputnilai.php?periode=" . urlencode($tahun_akademik) . "&semester=" . urlencode($semester) . "&id_mahasiswa=" . $id_mahasiswa . "&tipe=success&pesan=" . urlencode("Nilai berhasil disimpan."));
+header("Location: inputnilai.php?" . http_build_query([
+  'periode' => $periode,
+  'jurusan' => $jurusan,
+  'id_dosen' => $id_dosen,
+  'id_mahasiswa' => $id_mahasiswa,
+  'page' => $page,
+  'tipe' => 'success',
+  'pesan' => 'Nilai berhasil disimpan.'
+]));
 exit;
