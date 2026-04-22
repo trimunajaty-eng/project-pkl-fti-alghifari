@@ -37,12 +37,21 @@
   }
 
   function applyPersistedCollapse() {
-    if (isMobile()) return;
+    if (isMobile()) {
+      body.classList.remove("sidebar-collapsed");
+      document.documentElement.classList.remove("sidebar-collapsed-init");
+      return;
+    }
 
     const saved = localStorage.getItem(KEY_COLLAPSE);
-    if (saved === "1") body.classList.add("sidebar-collapsed");
-    else body.classList.remove("sidebar-collapsed");
 
+    if (saved === "1") {
+      body.classList.add("sidebar-collapsed");
+    } else {
+      body.classList.remove("sidebar-collapsed");
+    }
+
+    document.documentElement.classList.remove("sidebar-collapsed-init");
     syncBurgerIcon();
   }
 

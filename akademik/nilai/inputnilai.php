@@ -81,6 +81,15 @@ $tipe  = trim($_GET['tipe'] ?? 'info');
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../../css/css_akademik/nilai/inputnilai.css?v=2">
+  <script>
+  (function () {
+    try {
+      if (window.innerWidth > 860 && localStorage.getItem('ak_sidebar_collapsed') === '1') {
+        document.documentElement.classList.add('sidebar-collapsed-init');
+      }
+    } catch (e) {}
+  })();
+</script>
 </head>
 <body>
   <div class="app" id="app">
