@@ -326,7 +326,7 @@ if ($menu === 'dashboard'): ?>
       </div>
 
       <div class="card-actions">
-        <a class="btn" href="dashboard.php?menu=nilai">Rekap Nilai</a>
+        <a class="btn" href="nilai.php">Rekap Nilai</a>
         <a class="btn ghost" href="dashboard.php?menu=transkrip">Transkrip</a>
       </div>
     </div>

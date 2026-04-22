@@ -29,6 +29,17 @@ if ($selectedPeriode !== '') {
 
 /**
  * ==================================
+ * Helper query string
+ * ==================================
+ */
+function buildQuery($params = []) {
+  return http_build_query(array_filter($params, function ($v) {
+    return !($v === '' || $v === null || $v === 0);
+  }));
+}
+
+/**
+ * ==================================
  * Ambil list periode akademik
  * ==================================
  */
@@ -55,7 +66,22 @@ if ($qJurusan) {
 
 /**
  * ==================================
- * Ambil list dosen sesuai jurusan
+ * Ambil semua dosen (untuk JS filter dinamis)
+ * ==================================
+ */
+$allDosenList = [];
+$qAllDosen = $conn->query("SELECT id_dosen, kode_dosen, nama_dosen, jenis_kelamin, email, program_studi
+                           FROM dosen
+                           ORDER BY nama_dosen ASC");
+if ($qAllDosen) {
+  while ($r = $qAllDosen->fetch_assoc()) {
+    $allDosenList[] = $r;
+  }
+}
+
+/**
+ * ==================================
+ * Ambil dosen sesuai jurusan terpilih
  * ==================================
  */
 $dosenList = [];
@@ -83,15 +109,6 @@ if ($selectedJurusan !== '') {
  * ==================================
  */
 $dataDosen = null;
-$allDosenList = [];
-$qAllDosen = $conn->query("SELECT id_dosen, kode_dosen, nama_dosen, jenis_kelamin, email, program_studi
-                           FROM dosen
-                           ORDER BY nama_dosen ASC");
-if ($qAllDosen) {
-  while ($r = $qAllDosen->fetch_assoc()) {
-    $allDosenList[] = $r;
-  }
-}
 if ($idDosen > 0) {
   $stmtDosenSelected = $conn->prepare("SELECT id_dosen, kode_dosen, nama_dosen, jenis_kelamin, email, program_studi
                                        FROM dosen
@@ -113,10 +130,9 @@ if ($idDosen > 0) {
 $totalMahasiswa = 0;
 $totalPages = 1;
 $offset = ($page - 1) * $perPage;
-
 $mahasiswaList = [];
 
-if ($selectedPeriode !== '' && $selectedJurusan !== '' && $idDosen > 0) {
+if ($selectedPeriode !== '' && $selectedJurusan !== '' && $idDosen > 0 && $selectedTahunAkademik !== '' && $selectedSemester !== '') {
   $stmtCount = $conn->prepare("SELECT COUNT(*) AS total
                                FROM mahasiswa
                                WHERE periode_pendaftaran = ?
@@ -135,13 +151,35 @@ if ($selectedPeriode !== '' && $selectedJurusan !== '' && $idDosen > 0) {
     $offset = ($page - 1) * $perPage;
   }
 
-  $stmtList = $conn->prepare("SELECT id_mahasiswa, nim, nama_mahasiswa, program_studi, kelas
-                              FROM mahasiswa
-                              WHERE periode_pendaftaran = ?
-                                AND program_studi = ?
-                              ORDER BY nama_mahasiswa ASC
-                              LIMIT ? OFFSET ?");
-  $stmtList->bind_param("ssii", $selectedPeriode, $selectedJurusan, $perPage, $offset);
+  $stmtList = $conn->prepare("
+    SELECT 
+      m.id_mahasiswa,
+      m.nim,
+      m.nama_mahasiswa,
+      m.program_studi,
+      m.kelas,
+      IF(n.id_nilai IS NULL, 0, 1) AS sudah_nilai
+    FROM mahasiswa m
+    LEFT JOIN nilai_mahasiswa n
+      ON n.id_mahasiswa = m.id_mahasiswa
+      AND n.id_dosen = ?
+      AND n.tahun_akademik = ?
+      AND n.semester = ?
+    WHERE m.periode_pendaftaran = ?
+      AND m.program_studi = ?
+    ORDER BY m.nama_mahasiswa ASC
+    LIMIT ? OFFSET ?
+  ");
+  $stmtList->bind_param(
+    "issssii",
+    $idDosen,
+    $selectedTahunAkademik,
+    $selectedSemester,
+    $selectedPeriode,
+    $selectedJurusan,
+    $perPage,
+    $offset
+  );
   $stmtList->execute();
   $resList = $stmtList->get_result();
 
@@ -204,15 +242,10 @@ if ($selectedPeriode !== '' && $selectedJurusan !== '' && $selectedTahunAkademik
 }
 
 $canInput = ($dataMahasiswa !== null);
+$isUpdateMode = ($dataNilai['nilai_akhir'] !== '' || $dataNilai['grade'] !== '' || $dataNilai['keterangan'] !== '');
 
 $pesan = trim($_GET['pesan'] ?? '');
 $tipe  = trim($_GET['tipe'] ?? 'info');
-
-function buildQuery($params = []) {
-  return http_build_query(array_filter($params, function ($v) {
-    return !($v === '' || $v === null || $v === 0);
-  }));
-}
 ?>
 <!doctype html>
 <html lang="id">
@@ -332,7 +365,7 @@ function buildQuery($params = []) {
                 <div class="student-list" id="studentList">
                   <?php foreach ($mahasiswaList as $m): ?>
                     <a
-                      class="student-item student-select-link <?= ($idMahasiswa === (int)$m['id_mahasiswa']) ? 'active' : '' ?>"
+                      class="student-item student-select-link <?= ($idMahasiswa === (int)$m['id_mahasiswa']) ? 'active' : '' ?> <?= ((int)$m['sudah_nilai'] === 1) ? 'has-nilai' : '' ?>"
                       data-student-link="1"
                       href="inputnilai.php?<?= buildQuery([
                         'periode' => $selectedPeriode,
@@ -348,7 +381,16 @@ function buildQuery($params = []) {
                       </div>
 
                       <div class="student-content">
-                        <div class="student-name"><?= htmlspecialchars($m['nama_mahasiswa']); ?></div>
+                        <div class="student-name-row">
+                          <span class="student-name"><?= htmlspecialchars($m['nama_mahasiswa']); ?></span>
+
+                          <?php if ((int)$m['sudah_nilai'] === 1): ?>
+                            <span class="badge-status done">✔ Sudah</span>
+                          <?php else: ?>
+                            <span class="badge-status pending">• Belum</span>
+                          <?php endif; ?>
+                        </div>
+
                         <div class="student-meta">
                           <?= htmlspecialchars($m['nim']); ?> · <?= htmlspecialchars($m['program_studi']); ?> · <?= htmlspecialchars($m['kelas']); ?>
                         </div>
@@ -363,10 +405,9 @@ function buildQuery($params = []) {
 
                 <?php if ($totalPages > 1): ?>
                   <div class="pagination">
-                    <?php
-                    $prevPage = max(1, $page - 1);
-                    $nextPage = min($totalPages, $page + 1);
-                    ?>
+                    <?php $prevPage = max(1, $page - 1); ?>
+                    <?php $nextPage = min($totalPages, $page + 1); ?>
+
                     <a class="page-btn <?= $page <= 1 ? 'disabled' : '' ?>" href="<?= $page <= 1 ? '#' : 'inputnilai.php?' . buildQuery([
                       'periode' => $selectedPeriode,
                       'jurusan' => $selectedJurusan,
@@ -396,7 +437,7 @@ function buildQuery($params = []) {
               </div>
 
               <?php if ($canInput): ?>
-                <div class="status-badge">Siap Diisi</div>
+                <div class="status-badge"><?= $isUpdateMode ? 'Sudah Ada Nilai' : 'Siap Diisi'; ?></div>
               <?php endif; ?>
             </div>
 
@@ -500,7 +541,9 @@ function buildQuery($params = []) {
                   </div>
 
                   <div class="form-actions">
-                    <button type="submit" class="btn-save">Simpan Nilai</button>
+                    <button type="submit" class="btn-save">
+                      <?= $isUpdateMode ? 'Perbarui Nilai' : 'Simpan Nilai'; ?>
+                    </button>
                   </div>
                 </form>
               <?php endif; ?>

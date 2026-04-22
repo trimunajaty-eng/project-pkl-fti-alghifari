@@ -134,7 +134,7 @@ function renderMahasiswaLayoutStart(array $opt = []){
             <span class="tx">KRS</span>
           </a>
 
-          <a class="nav-item <?= $menu==='nilai'?'active':'' ?>" href="<?= e($basePath) ?>dashboard.php?menu=nilai">
+          <a class="nav-item <?= $menu==='nilai'?'active':'' ?>" href="<?= e($basePath) ?>nilai.php">
             <span class="ic">
               <svg viewBox="0 0 24 24" fill="none">
                 <path d="M4 19V5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>

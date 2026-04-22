@@ -992,3 +992,28 @@ html.sidebar-collapsed-init .menu-text,
 html.sidebar-collapsed-init .menu-item{
   transition:none !important;
 }
+
+.student-name-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+}
+
+.badge-status{
+  font-size:9px;
+  font-weight:700;
+  padding:4px 8px;
+  border-radius:999px;
+  white-space:nowrap;
+}
+
+.badge-status.done{
+  background:#dcfce7;
+  color:#166534;
+}
+
+.badge-status.pending{
+  background:#f1f5f9;
+  color:#475569;
+}
