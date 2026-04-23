@@ -45,12 +45,14 @@ if (($user['status'] ?? '') !== 'aktif') {
   exit;
 }
 
-// hanya izinkan admin dan akademik
+// === PERUBAHAN DOSEN MULAI ===
+// izinkan admin, akademik, dosen
 $role = $user['role'] ?? '';
-if (!in_array($role, ['admin', 'akademik'], true)) {
+if (!in_array($role, ['admin', 'akademik', 'dosen'], true)) {
   header("Location: login.php?tipe=error&pesan=" . urlencode("Akun ini tidak memiliki akses ke halaman ini."));
   exit;
 }
+// === PERUBAHAN DOSEN SELESAI ===
 
 // verifikasi password
 if (!password_verify($password, $user['password_hash'])) {
@@ -81,6 +83,12 @@ if ($role === 'akademik') {
   exit;
 }
 
-// fallback
+// === PERUBAHAN DOSEN MULAI ===
+if ($role === 'dosen') {
+  header("Location: ../dosen/dashboard.php?login=1");
+  exit;
+}
+// === PERUBAHAN DOSEN SELESAI ===
+
 header("Location: login.php?tipe=error&pesan=" . urlencode("Role tidak dikenali."));
 exit;

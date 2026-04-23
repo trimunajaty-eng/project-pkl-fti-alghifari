@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . "/../config.php";
 
-// kalau sudah login sebagai admin / akademik, langsung redirect sesuai role
+// kalau sudah login, langsung redirect sesuai role
 if (!empty($_SESSION['role'])) {
   if ($_SESSION['role'] === 'admin') {
     header("Location: dashboard.php");
@@ -12,6 +12,13 @@ if (!empty($_SESSION['role'])) {
     header("Location: ../akademik/dashboard.php");
     exit;
   }
+
+  // === PERUBAHAN DOSEN MULAI ===
+  if ($_SESSION['role'] === 'dosen') {
+    header("Location: ../dosen/dashboard.php");
+    exit;
+  }
+  // === PERUBAHAN DOSEN SELESAI ===
 }
 
 // pesan dari redirect
@@ -23,7 +30,7 @@ $tipe  = trim($_GET['tipe'] ?? 'info'); // info | error | success
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Login Admin & Akademik</title>
+  <title>Login Admin, Akademik & Dosen</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -33,7 +40,6 @@ $tipe  = trim($_GET['tipe'] ?? 'info'); // info | error | success
 </head>
 <body>
 
-  <!-- Toast -->
   <div class="toast" id="toast" aria-hidden="true">
     <div class="toast-card" id="toastCard">
       <div class="toast-title" id="toastTitle">Info</div>
@@ -44,13 +50,12 @@ $tipe  = trim($_GET['tipe'] ?? 'info'); // info | error | success
   <main class="login-page">
     <section class="login-card">
 
-      <!-- kiri -->
       <div class="login-left">
         <div class="brand-chip">Sistem Penilaian Mahasiswa</div>
 
         <h1 class="login-title">Masuk ke Sistem</h1>
         <p class="login-subtitle">
-          Login untuk mengakses panel <strong>Admin</strong> atau <strong>Akademik</strong>.
+          Login untuk mengakses panel <strong>Admin</strong>, <strong>Akademik</strong>, atau <strong>Dosen</strong>.
         </p>
 
         <form method="post" action="proses_login.php" class="login-form" autocomplete="off" id="formLogin">
@@ -96,7 +101,8 @@ $tipe  = trim($_GET['tipe'] ?? 'info'); // info | error | success
           <button type="submit" class="btn-login" id="btnMasuk">MASUK</button>
 
           <div class="login-note">
-            Akses yang didukung saat ini: <strong>Admin</strong> dan <strong>Akademik</strong>
+            Akses yang didukung saat ini:
+            <strong>Admin</strong>, <strong>Akademik</strong>, dan <strong>Dosen</strong>
           </div>
 
           <div class="login-footer">
@@ -105,7 +111,6 @@ $tipe  = trim($_GET['tipe'] ?? 'info'); // info | error | success
         </form>
       </div>
 
-      <!-- kanan -->
       <div class="login-right" aria-hidden="true">
         <div class="overlay"></div>
         <div class="right-content">

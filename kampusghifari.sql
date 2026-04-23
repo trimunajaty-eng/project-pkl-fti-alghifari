@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Apr 21, 2026 at 02:42 AM
+-- Generation Time: Apr 23, 2026 at 06:38 AM
 -- Server version: 8.0.30
 -- PHP Version: 8.1.10
 
@@ -20,6 +20,31 @@ SET time_zone = "+00:00";
 --
 -- Database: `kampusghifari`
 --
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `dosen`
+--
+
+CREATE TABLE `dosen` (
+  `id_dosen` int NOT NULL,
+  `kode_dosen` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `nama_dosen` varchar(150) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `jenis_kelamin` enum('Laki-laki','Perempuan') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `email` varchar(120) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `program_studi` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `id_user` int DEFAULT NULL,
+  `dibuat_pada` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `diubah_pada` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `dosen`
+--
+
+INSERT INTO `dosen` (`id_dosen`, `kode_dosen`, `nama_dosen`, `jenis_kelamin`, `email`, `program_studi`, `id_user`, `dibuat_pada`, `diubah_pada`) VALUES
+(1, 'DSN001', 'Rizky Pratama, S.Kom', 'Laki-laki', 'rizky.pratama@unfari.ac.id', 'Sistem Informasi S1', 8, '2026-04-22 04:07:23', NULL);
 
 -- --------------------------------------------------------
 
@@ -164,6 +189,7 @@ INSERT INTO `master_opsi_dropdown` (`id_opsi`, `grup`, `label`, `value`, `urutan
 CREATE TABLE `nilai_mahasiswa` (
   `id_nilai` int NOT NULL,
   `id_mahasiswa` int NOT NULL,
+  `id_dosen` int DEFAULT NULL,
   `tahun_akademik` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL,
   `semester` enum('Ganjil','Genap') COLLATE utf8mb4_unicode_ci NOT NULL,
   `tugas` decimal(5,2) DEFAULT NULL,
@@ -177,6 +203,13 @@ CREATE TABLE `nilai_mahasiswa` (
   `dibuat_pada` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `diubah_pada` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `nilai_mahasiswa`
+--
+
+INSERT INTO `nilai_mahasiswa` (`id_nilai`, `id_mahasiswa`, `id_dosen`, `tahun_akademik`, `semester`, `tugas`, `uts`, `uas`, `kehadiran`, `nilai_akhir`, `grade`, `keterangan`, `id_user_input`, `dibuat_pada`, `diubah_pada`) VALUES
+(1, 3, 1, '2026/2027', 'Genap', '70.00', '70.00', '70.00', '70.00', '70.00', '0', 'Lulus', 6, '2026-04-22 04:23:48', NULL);
 
 -- --------------------------------------------------------
 
@@ -202,11 +235,20 @@ CREATE TABLE `users` (
 INSERT INTO `users` (`id_user`, `role`, `username`, `password_hash`, `nama_lengkap`, `status`, `dibuat_pada`, `diubah_pada`) VALUES
 (1, 'admin', 'unfari', '$2y$10$oURFyI8nefr0wk2D4wei/.qTZtt8WzK36xWNddUKlc8Kt.kz34AVO', 'Universitas Al-ghifari', 'aktif', '2026-02-03 14:21:15', '2026-02-04 04:40:19'),
 (6, 'akademik', 'infakd', '$2y$10$Uqg398LlrbUNeRuaa4luAO2YWJsJIW1.4dJp979MXpy6Cb90R915C', 'Bagian Akademik', 'aktif', '2026-04-17 07:02:30', '2026-04-17 07:03:20'),
-(7, 'mahasiswa', 'FTI265720102', '$2y$10$TBWaDivckljcWu3cVzChmuUhCXuAXSvGunH8sb9f9LziPTytoEMe.', 'Akbar', 'aktif', '2026-04-21 02:38:24', '2026-04-21 02:40:04');
+(7, 'mahasiswa', 'FTI265720102', '$2y$10$TBWaDivckljcWu3cVzChmuUhCXuAXSvGunH8sb9f9LziPTytoEMe.', 'Akbar', 'aktif', '2026-04-21 02:38:24', '2026-04-21 02:40:04'),
+(8, 'dosen', 'DSN001', '$2y$10$Jx7rjR5vUqM2S0v0vL2j7O9P6Q7Qw/9S2A1P0v4Hq0xv2d9XUQ4lC', 'Dosen Sistem Informasi', 'aktif', '2026-04-22 04:07:23', NULL);
 
 --
 -- Indexes for dumped tables
 --
+
+--
+-- Indexes for table `dosen`
+--
+ALTER TABLE `dosen`
+  ADD PRIMARY KEY (`id_dosen`),
+  ADD UNIQUE KEY `uniq_kode_dosen` (`kode_dosen`),
+  ADD UNIQUE KEY `uniq_email_dosen` (`email`);
 
 --
 -- Indexes for table `mahasiswa`
@@ -227,7 +269,8 @@ ALTER TABLE `master_opsi_dropdown`
 --
 ALTER TABLE `nilai_mahasiswa`
   ADD PRIMARY KEY (`id_nilai`),
-  ADD UNIQUE KEY `uniq_nilai_mahasiswa_periode` (`id_mahasiswa`,`tahun_akademik`,`semester`);
+  ADD UNIQUE KEY `uniq_nilai_mahasiswa_periode` (`id_mahasiswa`,`tahun_akademik`,`semester`),
+  ADD KEY `idx_nilai_id_dosen` (`id_dosen`);
 
 --
 -- Indexes for table `users`
@@ -239,6 +282,12 @@ ALTER TABLE `users`
 --
 -- AUTO_INCREMENT for dumped tables
 --
+
+--
+-- AUTO_INCREMENT for table `dosen`
+--
+ALTER TABLE `dosen`
+  MODIFY `id_dosen` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `mahasiswa`
@@ -256,13 +305,13 @@ ALTER TABLE `master_opsi_dropdown`
 -- AUTO_INCREMENT for table `nilai_mahasiswa`
 --
 ALTER TABLE `nilai_mahasiswa`
-  MODIFY `id_nilai` int NOT NULL AUTO_INCREMENT;
+  MODIFY `id_nilai` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id_user` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id_user` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
