@@ -1,375 +1,248 @@
-.nilai-page > section{
-  margin-bottom: 20px;
+:root{
+  --nl-border: rgba(15,23,42,.10);
+  --nl-border-soft: rgba(15,23,42,.06);
+  --nl-muted: #64748b;
+  --nl-text: #0f172a;
+  --nl-accent: #14b8a6;
+  --nl-shadow: 0 10px 26px rgba(15,23,42,.08);
 }
 
-.nilai-page .hero{
+*{ box-sizing:border-box; }
+
+.nilai-page,
+.nilai-card,
+.nilai-box,
+.nilai-table-shell,
+.nilai-table-wrap{
+  width:100%;
+  max-width:100%;
+}
+
+.nilai-page{
+  min-width:0;
+}
+
+.nilai-card{
   background:#fff;
-  border:1px solid rgba(20,184,166,.18);
+  border:1px solid var(--nl-border);
   border-radius:18px;
-  box-shadow:var(--shadow);
+  box-shadow:var(--nl-shadow);
   padding:16px;
+  overflow:hidden;
 }
 
-.nilai-page .hero-top{
+.nilai-head{
   display:flex;
   align-items:flex-start;
   justify-content:space-between;
   gap:12px;
+  padding:4px 2px 12px;
 }
 
-.nilai-page .hero-title{
-  font-weight:600;
+.nilai-title{
   font-size:15px;
+  font-weight:600;
+  color:var(--nl-text);
 }
 
-.nilai-page .hero-sub{
+.nilai-sub{
   margin-top:4px;
   font-size:12.7px;
-  color:var(--muted);
-  font-weight:400;
+  color:var(--nl-muted);
 }
 
-.nilai-page .hero-pill{
-  border:1px solid var(--stroke);
-  border-radius:999px;
-  padding:8px 10px;
-  font-size:12px;
-  font-weight:500;
-  background:#fff;
-  display:flex;
-  align-items:center;
-  gap:8px;
-}
-
-.nilai-page .hero-pill b{ font-weight:600; }
-
-.nilai-page .hero-pill .dot{
-  width:8px;
-  height:8px;
-  border-radius:999px;
-  background:#22c55e;
-}
-
-.nilai-page .hero-cards{
-  margin-top:14px;
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:14px;
-}
-
-.nilai-page .hcard{
-  border:1px solid var(--stroke);
+.nilai-box{
+  margin-top:4px;
+  border:1px solid var(--nl-border-soft);
   border-radius:16px;
-  padding:12px;
-  background:#fff;
-}
-
-.nilai-page .hlabel{
-  font-size:12px;
-  color:var(--muted);
-  font-weight:500;
-}
-
-.nilai-page .hvalue{
-  margin-top:6px;
-  font-size:14px;
-  font-weight:600;
-}
-
-.nilai-page .hmeta{
-  margin-top:6px;
-  font-size:12px;
-  color:var(--muted);
-}
-
-.nilai-page .hmeta b{ font-weight:600; }
-
-.nilai-page .stats-grid{
-  display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:16px;
-}
-
-.nilai-page .stat-card{
-  background:#fff;
-  border:1px solid var(--stroke);
-  border-radius:18px;
-  box-shadow:var(--shadow);
   padding:14px;
+  background:#fff;
+  overflow:hidden;
 }
 
-.nilai-page .stat-label{
-  font-size:12px;
-  color:var(--muted);
-  font-weight:500;
+.nilai-semester-title{
+  text-align:center;
+  font-size:16px;
+  font-weight:700;
+  color:#475569;
+  margin:2px 0 14px;
+  text-transform:uppercase;
+  letter-spacing:.2px;
 }
 
-.nilai-page .stat-value{
-  margin-top:8px;
-  font-size:24px;
-  line-height:1;
+.nilai-table-shell{
+  overflow:hidden;
+  border:1px solid var(--nl-border-soft);
+  border-radius:14px;
+  background:#fff;
+}
+
+.nilai-table-wrap{
+  overflow-x:auto;
+  overflow-y:hidden;
+  -webkit-overflow-scrolling:touch;
+}
+
+.nilai-table{
+  width:100%;
+  min-width:1080px;
+  border-collapse:collapse;
+  table-layout:auto;
+}
+
+.nilai-table th,
+.nilai-table td{
+  border:1px solid rgba(15,23,42,.08);
+  padding:11px 12px;
+  font-size:12.4px;
+  color:#475569;
+  vertical-align:middle;
+  background:#fff;
+}
+
+.nilai-table th{
+  background:#f8fafc;
+  font-size:11.2px;
+  font-weight:700;
+  text-transform:uppercase;
+  color:#5b6778;
+  text-align:center;
+  white-space:nowrap;
+}
+
+.nilai-table td{
+  word-break:break-word;
+}
+
+.nilai-table td.center{
+  text-align:center;
+}
+
+.nilai-table td.right{
+  text-align:right;
+}
+
+.nilai-table td.left{
+  text-align:left;
+}
+
+.nilai-table .strong{
   font-weight:700;
 }
 
-.nilai-page .stat-meta{
-  margin-top:8px;
-  font-size:12px;
-  color:var(--muted);
+.nilai-table tbody tr:hover td{
+  background:#fbfcfd;
 }
 
-.nilai-page .grid{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:16px;
-}
-
-.nilai-page .card{
+.summary-row td{
   background:#fff;
-  border:1px solid var(--stroke);
-  border-radius:18px;
-  box-shadow:var(--shadow);
-  padding:20px;
 }
 
-.nilai-page .card-title{
-  font-weight:600;
-  font-size:13.5px;
-}
-
-.nilai-page .card-sub{
-  margin-top:6px;
-  font-size:12.7px;
-  color:var(--muted);
-}
-
-.nilai-page .card-actions{
-  margin-top:12px;
+.nilai-pagination{
+  margin-top:16px;
   display:flex;
-  gap:10px;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
   flex-wrap:wrap;
 }
 
-.nilai-page .btn{
-  height:36px;
-  padding:0 12px;
-  border-radius:12px;
-  border:1px solid rgba(20,184,166,.22);
-  background:var(--accent);
-  color:#fff;
-  font-weight:600;
-  font-size:12px;
+.page-nav,
+.page-number{
+  min-width:38px;
+  height:38px;
+  border:1px solid var(--nl-border);
+  border-radius:10px;
+  background:#fff;
+  color:#334155;
   text-decoration:none;
   display:inline-flex;
   align-items:center;
   justify-content:center;
-  cursor:pointer;
+  font-size:13px;
+  font-weight:600;
+  transition:.16s ease;
 }
 
-.nilai-page .btn.ghost{
-  background:#fff;
-  color:var(--accent);
-}
-
-.nilai-page .filter-form{
-  margin-top:12px;
-}
-
-.nilai-page .filter-grid{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:12px;
-}
-
-.nilai-page .fgroup{
-  display:grid;
-  gap:6px;
-}
-
-.nilai-page .fgroup span{
-  font-size:12px;
-  color:var(--muted);
-  font-weight:500;
-}
-
-.nilai-page .fgroup input,
-.nilai-page .fgroup select{
-  height:42px;
-  border:1px solid var(--stroke);
-  border-radius:12px;
-  padding:0 12px;
-  font-size:12.4px;
-  font-family:inherit;
-  background:#fff;
-  outline:none;
-}
-
-.nilai-page .fgroup input:focus,
-.nilai-page .fgroup select:focus{
-  border-color:rgba(20,184,166,.35);
-  box-shadow:0 0 0 4px rgba(20,184,166,.08);
-}
-
-.nilai-page .info{
-  margin-top:12px;
-  border:1px solid var(--stroke);
-  border-radius:14px;
-  overflow:hidden;
-}
-
-.nilai-page .info-row{
-  display:flex;
-  justify-content:space-between;
-  gap:10px;
-  padding:10px 12px;
-  border-top:1px solid rgba(15,23,42,.06);
-}
-
-.nilai-page .info-row:first-child{ border-top:0; }
-
-.nilai-page .info-k{
-  color:var(--muted);
-  font-size:12.2px;
-}
-
-.nilai-page .info-v{
-  font-weight:500;
-  font-size:12.2px;
-  text-align:right;
-}
-
-.nilai-page .table-wrap{
-  margin-top:14px;
-  overflow:auto;
-  border:1px solid var(--stroke);
-  border-radius:16px;
-}
-
-.nilai-page .nilai-table{
-  width:100%;
-  min-width:980px;
-  border-collapse:collapse;
-  background:#fff;
-}
-
-.nilai-page .nilai-table th,
-.nilai-page .nilai-table td{
-  padding:12px 12px;
-  border-bottom:1px solid rgba(15,23,42,.06);
-  text-align:left;
-  font-size:12px;
-  vertical-align:middle;
-}
-
-.nilai-page .nilai-table th{
+.page-number:hover,
+.page-nav:hover{
   background:#f8fafc;
-  color:#475569;
-  font-size:11px;
-  text-transform:uppercase;
-  letter-spacing:.4px;
-  font-weight:600;
 }
 
-.nilai-page .nilai-table tbody tr:hover{
-  background:rgba(20,184,166,.04);
+.page-number.active{
+  background:#14b8a6;
+  color:#fff;
+  border-color:#14b8a6;
 }
 
-.nilai-page .cell-main{
-  font-weight:600;
-  font-size:12.4px;
+.page-nav.disabled{
+  opacity:.45;
+  pointer-events:none;
 }
 
-.nilai-page .cell-sub{
-  margin-top:2px;
-  font-size:11.4px;
-  color:var(--muted);
-}
-
-.nilai-page .grade-badge{
-  display:inline-flex;
+.page-numbers{
+  display:flex;
   align-items:center;
-  justify-content:center;
-  min-width:42px;
-  height:30px;
-  padding:0 10px;
-  border-radius:999px;
-  font-size:11px;
-  font-weight:700;
-  color:#0f766e;
-  background:rgba(20,184,166,.12);
-  border:1px solid rgba(20,184,166,.22);
-}
-
-.nilai-page .status-badge{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  min-height:30px;
-  padding:0 10px;
-  border-radius:999px;
-  font-size:11px;
-  font-weight:600;
-  white-space:nowrap;
-}
-
-.nilai-page .status-badge.ok{
-  background:rgba(34,197,94,.12);
-  color:#166534;
-  border:1px solid rgba(34,197,94,.20);
-}
-
-.nilai-page .status-badge.wait{
-  background:rgba(148,163,184,.12);
-  color:#475569;
-  border:1px solid rgba(148,163,184,.20);
-}
-
-.nilai-page .empty-state{
-  margin-top:14px;
-  border:1px dashed var(--stroke);
-  border-radius:16px;
-  padding:28px 18px;
-  text-align:center;
-  background:#fff;
-}
-
-.nilai-page .empty-title{
-  font-size:14px;
-  font-weight:600;
-}
-
-.nilai-page .empty-sub{
-  margin-top:6px;
-  color:var(--muted);
-  font-size:12.5px;
-  line-height:1.6;
-}
-
-@media (max-width: 1100px){
-  .nilai-page .stats-grid{
-    grid-template-columns:repeat(2,minmax(0,1fr));
-  }
+  gap:8px;
+  flex-wrap:wrap;
 }
 
 @media (max-width: 980px){
-  .nilai-page .hero-cards{
-    grid-template-columns:1fr;
+  .nilai-card{
+    padding:14px;
   }
 
-  .nilai-page .grid{
-    grid-template-columns:1fr;
+  .nilai-box{
+    padding:12px;
+  }
+
+  .nilai-semester-title{
+    font-size:15px;
+  }
+
+  .nilai-table{
+    min-width:980px;
   }
 }
 
 @media (max-width: 768px){
-  .nilai-page .hero-top{
-    flex-direction:column;
+  .nilai-card{
+    padding:14px;
+    border-radius:16px;
   }
 
-  .nilai-page .stats-grid{
-    grid-template-columns:1fr;
+  .nilai-box{
+    padding:10px;
+    border-radius:14px;
   }
 
-  .nilai-page .filter-grid{
-    grid-template-columns:1fr;
+  .nilai-title{
+    font-size:14px;
+  }
+
+  .nilai-sub{
+    font-size:12.2px;
+  }
+
+  .nilai-semester-title{
+    font-size:14px;
+    margin-bottom:12px;
+  }
+
+  .nilai-table{
+    min-width:900px;
+  }
+
+  .nilai-table th,
+  .nilai-table td{
+    padding:10px 10px;
+    font-size:11.8px;
+  }
+
+  .page-nav,
+  .page-number{
+    min-width:34px;
+    height:34px;
+    font-size:12px;
   }
 }
