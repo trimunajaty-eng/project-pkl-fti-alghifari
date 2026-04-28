@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Apr 23, 2026 at 06:38 AM
+-- Generation Time: Apr 27, 2026 at 07:12 AM
 -- Server version: 8.0.30
 -- PHP Version: 8.1.10
 
@@ -44,7 +44,7 @@ CREATE TABLE `dosen` (
 --
 
 INSERT INTO `dosen` (`id_dosen`, `kode_dosen`, `nama_dosen`, `jenis_kelamin`, `email`, `program_studi`, `id_user`, `dibuat_pada`, `diubah_pada`) VALUES
-(1, 'DSN001', 'Rizky Pratama, S.Kom', 'Laki-laki', 'rizky.pratama@unfari.ac.id', 'Sistem Informasi S1', 8, '2026-04-22 04:07:23', NULL);
+(1, 'DSN001', 'Rizky Pratama, S.Kom', 'Laki-laki', 'rizky.pratama@unfari.ac.id', 'Sistem Informasi S1', 9, '2026-04-22 04:07:23', '2026-04-23 07:04:36');
 
 -- --------------------------------------------------------
 
@@ -192,6 +192,9 @@ CREATE TABLE `nilai_mahasiswa` (
   `id_dosen` int DEFAULT NULL,
   `tahun_akademik` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL,
   `semester` enum('Ganjil','Genap') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `semester_angka` int DEFAULT NULL,
+  `nama_mata_kuliah` varchar(150) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `nama_dosen_manual` varchar(150) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `tugas` decimal(5,2) DEFAULT NULL,
   `uts` decimal(5,2) DEFAULT NULL,
   `uas` decimal(5,2) DEFAULT NULL,
@@ -208,8 +211,8 @@ CREATE TABLE `nilai_mahasiswa` (
 -- Dumping data for table `nilai_mahasiswa`
 --
 
-INSERT INTO `nilai_mahasiswa` (`id_nilai`, `id_mahasiswa`, `id_dosen`, `tahun_akademik`, `semester`, `tugas`, `uts`, `uas`, `kehadiran`, `nilai_akhir`, `grade`, `keterangan`, `id_user_input`, `dibuat_pada`, `diubah_pada`) VALUES
-(1, 3, 1, '2026/2027', 'Genap', '70.00', '70.00', '70.00', '70.00', '70.00', '0', 'Lulus', 6, '2026-04-22 04:23:48', NULL);
+INSERT INTO `nilai_mahasiswa` (`id_nilai`, `id_mahasiswa`, `id_dosen`, `tahun_akademik`, `semester`, `semester_angka`, `nama_mata_kuliah`, `nama_dosen_manual`, `tugas`, `uts`, `uas`, `kehadiran`, `nilai_akhir`, `grade`, `keterangan`, `id_user_input`, `dibuat_pada`, `diubah_pada`) VALUES
+(1, 3, 1, '2026/2027', 'Genap', NULL, NULL, NULL, '70.00', '70.00', '70.00', '70.00', '70.00', '0', 'Lulus', 6, '2026-04-22 04:23:48', NULL);
 
 -- --------------------------------------------------------
 
@@ -236,7 +239,7 @@ INSERT INTO `users` (`id_user`, `role`, `username`, `password_hash`, `nama_lengk
 (1, 'admin', 'unfari', '$2y$10$oURFyI8nefr0wk2D4wei/.qTZtt8WzK36xWNddUKlc8Kt.kz34AVO', 'Universitas Al-ghifari', 'aktif', '2026-02-03 14:21:15', '2026-02-04 04:40:19'),
 (6, 'akademik', 'infakd', '$2y$10$Uqg398LlrbUNeRuaa4luAO2YWJsJIW1.4dJp979MXpy6Cb90R915C', 'Bagian Akademik', 'aktif', '2026-04-17 07:02:30', '2026-04-17 07:03:20'),
 (7, 'mahasiswa', 'FTI265720102', '$2y$10$TBWaDivckljcWu3cVzChmuUhCXuAXSvGunH8sb9f9LziPTytoEMe.', 'Akbar', 'aktif', '2026-04-21 02:38:24', '2026-04-21 02:40:04'),
-(8, 'dosen', 'DSN001', '$2y$10$Jx7rjR5vUqM2S0v0vL2j7O9P6Q7Qw/9S2A1P0v4Hq0xv2d9XUQ4lC', 'Dosen Sistem Informasi', 'aktif', '2026-04-22 04:07:23', NULL);
+(9, 'dosen', 'DSN001', '$2y$10$WGohx67yR4rYhBhRWQ1NSuK8j0FGiOu.a0LCiXJOIYiB8aP9VYEY.', 'Rizky Pratama, S.Kom', 'aktif', '2026-04-23 07:04:36', '2026-04-23 07:11:00');
 
 --
 -- Indexes for dumped tables
@@ -269,7 +272,7 @@ ALTER TABLE `master_opsi_dropdown`
 --
 ALTER TABLE `nilai_mahasiswa`
   ADD PRIMARY KEY (`id_nilai`),
-  ADD UNIQUE KEY `uniq_nilai_mahasiswa_periode` (`id_mahasiswa`,`tahun_akademik`,`semester`),
+  ADD UNIQUE KEY `uniq_nilai_massal` (`id_mahasiswa`,`tahun_akademik`,`semester_angka`,`nama_mata_kuliah`),
   ADD KEY `idx_nilai_id_dosen` (`id_dosen`);
 
 --
@@ -311,7 +314,7 @@ ALTER TABLE `nilai_mahasiswa`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id_user` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id_user` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
