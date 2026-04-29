@@ -47,6 +47,7 @@ $m = [
     'kelas'            => '-',
     'angkatan'         => '-',
     'status_mahasiswa' => 'AKTIF',
+    'periode_pendaftaran' => '',
 ];
 
 if ($nim !== '') {
@@ -75,29 +76,10 @@ if ($nim !== '') {
     }
 }
 
-// Helper: konversi semester text ke angka untuk sorting
-function semesterToNumber($semester)
-{
-    $s = strtolower(trim((string)$semester));
-    if ($s === 'ganjil') return 1;
-    if ($s === 'genap') return 2;
-    return 1;
-}
-
-// Helper: label semester untuk display
-function semesterNumberLabel($semester)
-{
-    $s = strtolower(trim((string)$semester));
-    if ($s === 'ganjil') return 'Semester 1';
-    if ($s === 'genap') return 'Semester 2';
-    return 'Semester 1';
-}
-
 // Ambil data nilai
 $nilaiRows = [];
 
 if ($m['id_mahasiswa'] > 0) {
-    // Query mengambil semua nilai yang sudah diinput akademik
     $sqlNilai = "
         SELECT
             n.id_nilai,
@@ -119,38 +101,9 @@ if ($m['id_mahasiswa'] > 0) {
         LEFT JOIN dosen d ON d.id_dosen = n.id_dosen
         WHERE n.id_mahasiswa = ?
         ORDER BY 
-            n.tahun_akademik DESC,
-            semesterToNumber(n.semester) DESC,
-            n.semester_angka DESC,
-            n.nama_mata_kuliah ASC
-    ";
-
-    // Register custom function untuk ORDER BY jika perlu
-    // Atau gunakan FIELD seperti sebelumnya
-    $sqlNilai = "
-        SELECT
-            n.id_nilai,
-            n.tahun_akademik,
-            n.semester,
-            n.semester_angka,
-            n.nama_mata_kuliah,
-            n.nama_dosen_manual,
-            n.tugas,
-            n.uts,
-            n.uas,
-            n.kehadiran,
-            n.nilai_akhir,
-            n.grade,
-            n.keterangan,
-            d.nama_dosen,
-            d.kode_dosen
-        FROM nilai_mahasiswa n
-        LEFT JOIN dosen d ON d.id_dosen = n.id_dosen
-        WHERE n.id_mahasiswa = ?
-        ORDER BY 
-            n.tahun_akademik DESC,
-            FIELD(LOWER(n.semester), 'genap', 'ganjil'),
-            n.semester_angka DESC,
+            n.tahun_akademik ASC,
+            FIELD(LOWER(n.semester), 'ganjil', 'genap'),
+            n.semester_angka ASC,
             n.nama_mata_kuliah ASC
     ";
 
@@ -169,57 +122,70 @@ if ($m['id_mahasiswa'] > 0) {
     }
 }
 
-// Kelompokkan per semester (tahun + semester text)
-$semesterGroups = [];
+// ===== Bangun SEMUA semester 1-8 (selalu ada) =====
+$allSemesters = [];
+$totalSemesters = 8;
 
-foreach ($nilaiRows as $row) {
-    $tahun = trim((string)($row['tahun_akademik'] ?? ''));
-    $semester = trim((string)($row['semester'] ?? ''));
-    $semesterAngka = (int)($row['semester_angka'] ?? 0);
-    
-    // Key unik: tahun|semester|semester_angka agar lebih spesifik
-    $key = $tahun . '|' . $semester . '|' . $semesterAngka;
-
-    if (!isset($semesterGroups[$key])) {
-        $semesterGroups[$key] = [
-            'tahun_akademik' => $tahun,
-            'semester'       => $semester,
-            'semester_angka' => $semesterAngka,
-            'semester_label' => 'Semester ' . $semesterAngka,
-            'rows'           => [],
-        ];
-    }
-
-    $semesterGroups[$key]['rows'][] = $row;
-}
-
-// Jika belum ada data, tampilkan placeholder
-if (empty($semesterGroups)) {
-    $periodeMhs = $m['periode_pendaftaran'] ?? '';
-    $defaultTahun = !empty($periodeMhs) ? substr($periodeMhs, 0, 9) : '2026/2027';
-    
-    $semesterGroups['default'] = [
-        'tahun_akademik' => $defaultTahun,
-        'semester'       => 'ganjil',
-        'semester_angka' => 1,
-        'semester_label' => 'Semester 1',
-        'rows'           => [],
+for ($smt = 1; $smt <= $totalSemesters; $smt++) {
+    $allSemesters[$smt] = [
+        'semester_angka' => $smt,
+        'semester_label' => 'Semester ' . $smt,
+        'rows' => [],
+        'tahun_akademik' => '',
+        'semester' => '',
+        'has_data' => false,
     ];
 }
 
-// Pagination: 1 semester per halaman
-$semesterPerPage = 1;
-$groupList = array_values($semesterGroups);
-$totalGroup = count($groupList);
-$totalPages = max(1, (int)ceil($totalGroup / $semesterPerPage));
-$page = max(1, (int)($_GET['page'] ?? 1));
-
-if ($page > $totalPages) {
-    $page = $totalPages;
+foreach ($nilaiRows as $row) {
+    $smtAngka = (int)($row['semester_angka'] ?? 0);
+    
+    if (isset($allSemesters[$smtAngka])) {
+        $allSemesters[$smtAngka]['rows'][] = $row;
+        $allSemesters[$smtAngka]['has_data'] = true;
+        
+        if (empty($allSemesters[$smtAngka]['tahun_akademik'])) {
+            $allSemesters[$smtAngka]['tahun_akademik'] = $row['tahun_akademik'] ?? '';
+            $allSemesters[$smtAngka]['semester'] = $row['semester'] ?? '';
+        }
+    }
 }
 
-$offset = ($page - 1) * $semesterPerPage;
-$semesterPageItems = array_slice($groupList, $offset, $semesterPerPage);
+// ===== Pagination: Page = Semester Angka (1-8) =====
+$page = max(1, min($totalSemesters, (int)($_GET['page'] ?? 1)));
+$currentSemesterData = $allSemesters[$page];
+
+// ===== Logic Pagination dengan Ellipsis =====
+function buildPaginationNumbers($currentPage, $totalPages, $visibleCount = 3)
+{
+    $pages = [];
+    $pages[] = 1;
+    
+    $start = max(2, $currentPage - 1);
+    $end = min($totalPages - 1, $currentPage + 1);
+    
+    if ($start > 2) {
+        $pages[] = 'ellipsis-start';
+    }
+    
+    for ($p = $start; $p <= $end; $p++) {
+        if ($p > 1 && $p < $totalPages) {
+            $pages[] = $p;
+        }
+    }
+    
+    if ($end < $totalPages - 1) {
+        $pages[] = 'ellipsis-end';
+    }
+    
+    if ($totalPages > 1) {
+        $pages[] = $totalPages;
+    }
+    
+    return array_unique($pages);
+}
+
+$paginationNumbers = buildPaginationNumbers($page, $totalSemesters, 3);
 
 renderMahasiswaLayoutStart([
     "title"       => "Mahasiswa - Nilai Semester",
@@ -235,7 +201,7 @@ renderMahasiswaLayoutStart([
 ]);
 ?>
 
-<link rel="stylesheet" href="../css/css_mahasiswa/nilai.css?v=6.0">
+<link rel="stylesheet" href="../css/css_mahasiswa/nilai.css?v=10.0">
 
 <section class="nilai-page"
          id="nilaiPage"
@@ -246,119 +212,155 @@ renderMahasiswaLayoutStart([
         <div class="nilai-head">
             <div>
                 <div class="nilai-title">Rekap Nilai Semester</div>
-                <div class="nilai-sub">Data nilai ditampilkan per semester. Pilih halaman untuk melihat semester lain.</div>
+                <div class="nilai-sub">
+                    Halaman <strong><?= $page; ?></strong> = Semester <?= $page; ?>. 
+                    Pilih nomor halaman untuk melihat semester lain.
+                </div>
             </div>
         </div>
 
-        <?php foreach ($semesterPageItems as $group): ?>
-            <div class="nilai-box">
-                <div class="nilai-semester-title">
-                    <?= e($group['tahun_akademik']) ?> - <?= e($group['semester_label']) ?>
-                </div>
+        <!-- Semester Box -->
+        <div class="nilai-box">
+            <div class="nilai-semester-title">
+                <?= e($currentSemesterData['semester_label']); ?>
+            </div>
 
-                <div class="nilai-table-shell">
-                    <div class="nilai-table-wrap">
-                        <table class="nilai-table">
-                            <thead>
-                                <tr>
-                                    <th style="width:50px;">No</th>
-                                    <th style="min-width:180px;">Mata Kuliah</th>
-                                    <th style="width:80px;">Tugas</th>
-                                    <th style="width:80px;">UTS</th>
-                                    <th style="width:80px;">UAS</th>
-                                    <th style="width:80px;">LL</th>
-                                    <th style="width:70px;">NA</th>
-                                    <th style="width:70px;">Grade</th>
-                                    <th style="min-width:150px;">Dosen</th>
-                                    <th style="min-width:100px;">Ket</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php if (!empty($group['rows'])): ?>
-                                    <?php
-                                    $no = 1;
-                                    foreach ($group['rows'] as $row):
-                                        $mataKuliah = trim((string)($row['nama_mata_kuliah'] ?? $row['nama_mata_kuliah'] ?? '-'));
-                                        $dosen = trim((string)($row['nama_dosen_manual'] ?? $row['nama_dosen'] ?? '-'));
-                                        
-                                        $tugas = $row['tugas'] !== null && $row['tugas'] !== '' ? number_format((float)$row['tugas'], 2) : '-';
-                                        $uts   = $row['uts'] !== null && $row['uts'] !== '' ? number_format((float)$row['uts'], 2) : '-';
-                                        $uas   = $row['uas'] !== null && $row['uas'] !== '' ? number_format((float)$row['uas'], 2) : '-';
-                                        $ll    = $row['kehadiran'] !== null && $row['kehadiran'] !== '' ? number_format((float)$row['kehadiran'], 2) : '-';
-                                        $na    = $row['nilai_akhir'] !== null && $row['nilai_akhir'] !== '' ? number_format((float)$row['nilai_akhir'], 2) : '-';
-                                        $grade = trim((string)($row['grade'] ?? '-'));
-                                        $ket   = trim((string)($row['keterangan'] ?? '-'));
-                                    ?>
-                                        <tr>
-                                            <td class="center"><?= $no++; ?></td>
-                                            <td class="left"><?= e($mataKuliah !== '-' ? $mataKuliah : '-'); ?></td>
-                                            <td class="center"><?= e($tugas); ?></td>
-                                            <td class="center"><?= e($uts); ?></td>
-                                            <td class="center"><?= e($uas); ?></td>
-                                            <td class="center"><?= e($ll); ?></td>
-                                            <td class="center"><strong><?= e($na); ?></strong></td>
-                                            <td class="center grade-<?= strtolower(e($grade)); ?>"><?= e($grade !== '-' ? $grade : '-'); ?></td>
-                                            <td class="left"><?= e($dosen !== '-' ? $dosen : '-'); ?></td>
-                                            <td class="center ket-<?= strtolower(str_replace(' ', '-', e($ket))); ?>"><?= e($ket !== '-' ? $ket : '-'); ?></td>
-                                        </tr>
-                                    <?php endforeach; ?>
-                                <?php else: ?>
+            <div class="nilai-table-shell">
+                <div class="nilai-table-wrap">
+                    <table class="nilai-table">
+                        <thead>
+                            <tr>
+                                <th style="width:50px;">No</th>
+                                <th style="min-width:180px;">Mata Kuliah</th>
+                                <th style="width:80px;">Tugas</th>
+                                <th style="width:80px;">UTS</th>
+                                <th style="width:80px;">UAS</th>
+                                <th style="width:80px;">LL</th>
+                                <th style="width:70px;">NA</th>
+                                <th style="width:70px;">Grade</th>
+                                <th style="min-width:150px;">Dosen</th>
+                                <th style="min-width:100px;">Ket</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php if (!empty($currentSemesterData['rows'])): ?>
+                                <?php
+                                $no = 1;
+                                foreach ($currentSemesterData['rows'] as $row):
+                                    $mataKuliah = trim((string)($row['nama_mata_kuliah'] ?? '-'));
+                                    $dosen = trim((string)($row['nama_dosen_manual'] ?? $row['nama_dosen'] ?? '-'));
+                                    
+                                    $tugas = ($row['tugas'] !== null && $row['tugas'] !== '') 
+                                        ? number_format((float)$row['tugas'], 2) : '-';
+                                    $uts   = ($row['uts'] !== null && $row['uts'] !== '') 
+                                        ? number_format((float)$row['uts'], 2) : '-';
+                                    $uas   = ($row['uas'] !== null && $row['uas'] !== '') 
+                                        ? number_format((float)$row['uas'], 2) : '-';
+                                    $ll    = ($row['kehadiran'] !== null && $row['kehadiran'] !== '') 
+                                        ? number_format((float)$row['kehadiran'], 2) : '-';
+                                    $na    = ($row['nilai_akhir'] !== null && $row['nilai_akhir'] !== '') 
+                                        ? number_format((float)$row['nilai_akhir'], 2) : '-';
+                                    $grade = trim((string)($row['grade'] ?? '-'));
+                                    $ket   = trim((string)($row['keterangan'] ?? '-'));
+                                ?>
                                     <tr>
-                                        <td colspan="10" class="empty-row">
-                                            <div class="empty-state">
-                                                <span class="empty-icon">📭</span>
-                                                <p>Belum ada nilai yang diinput untuk semester ini.</p>
-                                                <small>Nilai akan muncul setelah dosen/akademik menginput.</small>
-                                            </div>
-                                        </td>
+                                        <td class="center"><?= $no++; ?></td>
+                                        <td class="left"><?= e($mataKuliah !== '-' ? $mataKuliah : '-'); ?></td>
+                                        <td class="center"><?= e($tugas); ?></td>
+                                        <td class="center"><?= e($uts); ?></td>
+                                        <td class="center"><?= e($uas); ?></td>
+                                        <td class="center"><?= e($ll); ?></td>
+                                        <td class="center"><strong><?= e($na); ?></strong></td>
+                                        <!-- Grade: Teks normal, tanpa badge background -->
+                                        <td class="center"><?= e($grade !== '-' ? $grade : '-'); ?></td>
+                                        <td class="left"><?= e($dosen !== '-' ? $dosen : '-'); ?></td>
+                                        <!-- Ket: Teks normal, tanpa badge background -->
+                                        <td class="center"><?= e($ket !== '-' ? $ket : '-'); ?></td>
                                     </tr>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <tr>
+                                    <td colspan="10" class="empty-row">
+                                        <div class="empty-state">
+                                            <span class="empty-icon">📭</span>
+                                            <p>Belum ada nilai untuk Semester <?= $page; ?>.</p>
+                                            <small>Nilai akan muncul setelah dosen/akademik menginput.</small>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pagination: Wrapper untuk center stabil -->
+        <?php if ($totalSemesters > 1): ?>
+            <div class="nilai-pagination">
+                <div class="pagination-wrapper">
+                    <div class="pagination-inner">
+                        <!-- Prev -->
+                        <?php if ($page > 1): ?>
+                            <a class="page-nav prev" href="nilai.php?page=<?= $page - 1; ?>" aria-label="Semester sebelumnya">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="14" height="14">
+                                    <polyline points="15 18 9 12 15 6"/>
+                                </svg>
+                            </a>
+                        <?php else: ?>
+                            <span class="page-nav prev disabled" aria-disabled="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="14" height="14">
+                                    <polyline points="15 18 9 12 15 6"/>
+                                </svg>
+                            </span>
+                        <?php endif; ?>
+
+                        <!-- Numbers -->
+                        <div class="page-numbers">
+                            <?php foreach ($paginationNumbers as $p): ?>
+                                <?php if ($p === 'ellipsis-start' || $p === 'ellipsis-end'): ?>
+                                    <span class="page-ellipsis">...</span>
+                                <?php else: ?>
+                                    <?php 
+                                    $isActive = ($p === $page);
+                                    $hasData = $allSemesters[$p]['has_data'] ?? false;
+                                    ?>
+                                    <a href="nilai.php?page=<?= $p; ?>" 
+                                       class="page-number <?= $isActive ? 'active' : ''; ?> <?= !$hasData ? 'no-data' : ''; ?>"
+                                       title="<?= $hasData ? 'Ada nilai' : 'Belum ada nilai'; ?>">
+                                        <?= $p; ?>
+                                    </a>
                                 <?php endif; ?>
-                            </tbody>
-                        </table>
+                            <?php endforeach; ?>
+                        </div>
+
+                        <!-- Next -->
+                        <?php if ($page < $totalSemesters): ?>
+                            <a class="page-nav next" href="nilai.php?page=<?= $page + 1; ?>" aria-label="Semester berikutnya">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="14" height="14">
+                                    <polyline points="9 18 15 12 9 6"/>
+                                </svg>
+                            </a>
+                        <?php else: ?>
+                            <span class="page-nav next disabled" aria-disabled="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="14" height="14">
+                                    <polyline points="9 18 15 12 9 6"/>
+                                </svg>
+                            </span>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
-        <?php endforeach; ?>
-
-        <!-- Pagination -->
-        <?php if ($totalPages > 1): ?>
-            <div class="nilai-pagination">
-                <?php if ($page > 1): ?>
-                    <a class="page-nav" href="nilai.php?page=<?= $page - 1; ?>" aria-label="Previous">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="16" height="16">
-                            <polyline points="15 18 9 12 15 6"/>
-                        </svg>
-                    </a>
-                <?php else: ?>
-                    <span class="page-nav disabled" aria-disabled="true">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="16" height="16">
-                            <polyline points="15 18 9 12 15 6"/>
-                        </svg>
-                    </span>
-                <?php endif; ?>
-
-                <div class="page-info">
-                    Semester <strong><?= $page; ?></strong> dari <strong><?= $totalPages; ?></strong>
-                </div>
-
-                <?php if ($page < $totalPages): ?>
-                    <a class="page-nav" href="nilai.php?page=<?= $page + 1; ?>" aria-label="Next">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="16" height="16">
-                            <polyline points="9 18 15 12 9 6"/>
-                        </svg>
-                    </a>
-                <?php else: ?>
-                    <span class="page-nav disabled" aria-disabled="true">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="16" height="16">
-                            <polyline points="9 18 15 12 9 6"/>
-                        </svg>
-                    </span>
+            
+            <div class="page-info-text">
+                Semester <strong><?= $page; ?></strong> dari <strong><?= $totalSemesters; ?></strong>
+                <?php if (!$currentSemesterData['has_data']): ?>
+                    <span class="info-note">(Belum ada nilai)</span>
                 <?php endif; ?>
             </div>
         <?php endif; ?>
 
-        <!-- Info tambahan jika tidak ada data sama sekali -->
-        <?php if ($totalGroup === 0): ?>
+        <?php if (empty($nilaiRows)): ?>
             <div class="nilai-info">
                 <p>💡 <strong>Info:</strong> Nilai akan muncul di sini setelah dosen atau bagian akademik menginput nilai untuk mata kuliah yang Anda ambil.</p>
             </div>
@@ -366,7 +368,7 @@ renderMahasiswaLayoutStart([
     </div>
 </section>
 
-<script src="../js/js_mahasiswa/nilai.js?v=6.0"></script>
+<script src="../js/js_mahasiswa/nilai.js?v=8.0"></script>
 
 <?php
 renderMahasiswaLayoutEnd([

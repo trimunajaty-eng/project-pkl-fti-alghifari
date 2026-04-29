@@ -1,10 +1,12 @@
 /**
- * Mahasiswa Nilai Page - JavaScript Module v6.0
+ * Mahasiswa Nilai Page - JavaScript Module v8.0
  * Fitur:
- * - Auto check status akun (blocker jika nonaktif)
- * - Smooth scroll untuk pagination
- * - Grade badge animation
+ * - Pagination sequential 1-8 dengan ellipsis
+ * - Smooth scroll untuk navigasi
+ * - Grade badge animation on load
+ * - Account blocker untuk status nonaktif
  * - Responsive table helper
+ * - Horizontal pagination scroll di mobile
  */
 (function () {
     'use strict';
@@ -19,7 +21,7 @@
         return;
     }
 
-    // ===== Account Blocker =====
+    // ===== Account Blocker (Nonaktif) =====
     const page = document.getElementById('nilaiPage');
     const apiUrl = page?.dataset?.api || '';
     const blockedMsg = (page?.dataset?.blockedMsg || '').trim();
@@ -65,19 +67,20 @@
                 setTimeout(showBlocker, 1000);
             }
         } catch (err) {
-            // Silent fail - don't block UX on network error
+            // Silent fail - jangan ganggu UX kalau network error
         }
     }
 
-    // Check on load and periodically
+    // Check on load dan periodic
     checkAccountStatus();
-    setInterval(checkAccountStatus, 30000); // Check every 30 seconds
+    setInterval(checkAccountStatus, 30000);
 
-    // ===== Smooth Scroll for Pagination =====
-    const pageNavLinks = document.querySelectorAll('.page-nav:not(.disabled)');
-    pageNavLinks.forEach(function (link) {
+    // ===== Smooth Scroll untuk Pagination =====
+    const pageLinks = document.querySelectorAll('.page-nav:not(.disabled), .page-number');
+    
+    pageLinks.forEach(function (link) {
         link.addEventListener('click', function (e) {
-            // Allow default navigation but scroll to top smoothly after
+            // Biarkan navigasi default, tapi scroll ke atas dengan smooth setelahnya
             setTimeout(function () {
                 window.scrollTo({
                     top: 0,
@@ -90,19 +93,23 @@
     // ===== Grade Badge Animation on Load =====
     function animateGradeBadges() {
         const gradeCells = document.querySelectorAll('td[class*="grade-"]');
+        
         gradeCells.forEach(function (cell, index) {
-            // Staggered animation
+            // Staggered animation agar tidak serentak
             setTimeout(function () {
                 cell.style.transition = 'transform 0.2s ease, opacity 0.2s ease';
                 cell.style.transform = 'scale(1.05)';
+                cell.style.opacity = '0.9';
+                
                 setTimeout(function () {
                     cell.style.transform = 'scale(1)';
+                    cell.style.opacity = '1';
                 }, 150);
-            }, index * 50);
+            }, index * 40);
         });
     }
 
-    // Run animation after page load
+    // Run animation setelah DOM ready
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', animateGradeBadges);
     } else {
@@ -116,7 +123,7 @@
             return;
         }
 
-        // Add visual indicator if table is scrollable
+        // Tambah visual indicator kalau table bisa discroll
         function updateScrollIndicator() {
             const isScrollable = tableWrap.scrollWidth > tableWrap.clientWidth;
             tableWrap.classList.toggle('is-scrollable', isScrollable);
@@ -132,30 +139,105 @@
         initTableScroll();
     }
 
-    // ===== Keyboard Navigation for Pagination =====
-    document.addEventListener('keydown', function (e) {
-        // Arrow left/right to navigate pages (if pagination exists)
-        if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
-            const prevLink = document.querySelector('.page-nav:not(.disabled):first-of-type');
-            const nextLink = document.querySelector('.page-nav:not(.disabled):last-of-type');
-            
-            if (e.key === 'ArrowLeft' && prevLink && !prevLink.classList.contains('disabled')) {
-                e.preventDefault();
-                prevLink.click();
+    // ===== Pagination Horizontal Scroll Helper (Mobile) =====
+    function initPaginationScroll() {
+        const pagination = document.querySelector('.nilai-pagination');
+        if (!pagination) return;
+
+        // Enable horizontal scroll on mobile
+        function updatePaginationScroll() {
+            const isMobile = window.innerWidth <= 768;
+            if (isMobile) {
+                pagination.style.overflowX = 'auto';
+            } else {
+                pagination.style.overflowX = 'visible';
             }
-            if (e.key === 'ArrowRight' && nextLink && !nextLink.classList.contains('disabled')) {
+        }
+
+        updatePaginationScroll();
+        window.addEventListener('resize', updatePaginationScroll);
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initPaginationScroll);
+    } else {
+        initPaginationScroll();
+    }
+
+    // ===== Keyboard Navigation untuk Pagination =====
+    document.addEventListener('keydown', function (e) {
+        // Arrow left/right untuk navigasi halaman
+        if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+            const currentPage = parseInt(new URLSearchParams(window.location.search).get('page') || '1', 10);
+            const totalPages = 8; // Selalu 8 semester
+            
+            let nextPage = null;
+            
+            if (e.key === 'ArrowLeft' && currentPage > 1) {
+                nextPage = currentPage - 1;
+            }
+            if (e.key === 'ArrowRight' && currentPage < totalPages) {
+                nextPage = currentPage + 1;
+            }
+            
+            if (nextPage) {
                 e.preventDefault();
-                nextLink.click();
+                window.location.href = 'nilai.php?page=' + nextPage;
             }
         }
     });
+
+    // ===== Highlight Active Page on Load =====
+    function highlightActivePage() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const currentPage = parseInt(urlParams.get('page') || '1', 10);
+        const pageNumbers = document.querySelectorAll('.page-number');
+        
+        pageNumbers.forEach(function (num) {
+            const pageNum = parseInt(num.textContent.trim(), 10);
+            if (pageNum === currentPage) {
+                num.classList.add('active');
+            } else {
+                num.classList.remove('active');
+            }
+        });
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', highlightActivePage);
+    } else {
+        highlightActivePage();
+    }
+
+    // ===== Ellipsis Click Handler (Opsional: klik "..." load lebih) =====
+    function initEllipsisClick() {
+        const ellipsisElements = document.querySelectorAll('.page-ellipsis');
+        
+        ellipsisElements.forEach(function (el) {
+            el.addEventListener('click', function () {
+                // Opsional: scroll ke page numbers atau tampilkan semua
+                const pageNumbers = document.querySelector('.page-numbers');
+                if (pageNumbers) {
+                    pageNumbers.scrollLeft = pageNumbers.scrollWidth / 2;
+                }
+            });
+        });
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initEllipsisClick);
+    } else {
+        initEllipsisClick();
+    }
 
     // ===== Debug Export (localhost only) =====
     if (window.location.hostname === 'localhost') {
         window.__MhsNilai = {
             checkAccountStatus: checkAccountStatus,
             showBlocker: showBlocker,
-            animateGradeBadges: animateGradeBadges
+            animateGradeBadges: animateGradeBadges,
+            highlightActivePage: highlightActivePage,
+            initPaginationScroll: initPaginationScroll
         };
     }
 

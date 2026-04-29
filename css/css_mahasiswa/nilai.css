@@ -5,41 +5,14 @@
     --nl-text: #0f172a;
     --nl-accent: #14b8a6;
     --nl-shadow: 0 10px 26px rgba(15, 23, 42, 0.08);
-    
-    /* Grade colors */
-    --grade-a: #059669;
-    --grade-a-bg: #d1fae5;
-    --grade-b: #0284c7;
-    --grade-b-bg: #dbeafe;
-    --grade-c: #d97706;
-    --grade-c-bg: #fef3c7;
-    --grade-d: #dc2626;
-    --grade-d-bg: #fee2e2;
-    --grade-e: #64748b;
-    --grade-e-bg: #f1f5f9;
-    
-    /* Keterangan colors */
-    --ket-lulus: #059669;
-    --ket-lulus-bg: #d1fae5;
-    --ket-tidak: #dc2626;
-    --ket-tidak-bg: #fee2e2;
 }
 
-* {
-    box-sizing: border-box;
-}
-
-.nilai-page,
-.nilai-card,
-.nilai-box,
-.nilai-table-shell,
-.nilai-table-wrap {
-    width: 100%;
-    max-width: 100%;
-}
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
 .nilai-page {
     min-width: 0;
+    width: 100%;
+    font-family: "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
 }
 
 .nilai-card {
@@ -49,6 +22,8 @@
     box-shadow: var(--nl-shadow);
     padding: 16px;
     overflow: hidden;
+    width: 100%;
+    max-width: 100%;
 }
 
 .nilai-head {
@@ -57,18 +32,22 @@
     justify-content: space-between;
     gap: 12px;
     padding: 4px 2px 12px;
+    flex-wrap: wrap;
 }
 
 .nilai-title {
     font-size: 15px;
     font-weight: 600;
     color: var(--nl-text);
+    line-height: 1.3;
 }
 
 .nilai-sub {
     margin-top: 4px;
-    font-size: 12.7px;
+    font-size: 12px;
     color: var(--nl-muted);
+    line-height: 1.5;
+    max-width: 100%;
 }
 
 .nilai-box {
@@ -88,10 +67,11 @@
     margin: 2px 0 14px;
     text-transform: uppercase;
     letter-spacing: 0.2px;
-    padding: 8px;
+    padding: 10px 16px;
     background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
     border-radius: 10px;
     border: 1px solid var(--nl-border-soft);
+    word-break: break-word;
 }
 
 .nilai-table-shell {
@@ -99,30 +79,39 @@
     border: 1px solid var(--nl-border-soft);
     border-radius: 14px;
     background: #fff;
+    width: 100%;
 }
 
 .nilai-table-wrap {
     overflow-x: auto;
     overflow-y: hidden;
     -webkit-overflow-scrolling: touch;
+    width: 100%;
+    scrollbar-width: none;
 }
 
+.nilai-table-wrap::-webkit-scrollbar { display: none; }
+
+/* ===== Table ===== */
 .nilai-table {
     width: 100%;
-    min-width: 900px;
+    min-width: 850px;
     border-collapse: collapse;
-    table-layout: auto;
+    table-layout: fixed;
+    font-size: 11.5px;
 }
 
 .nilai-table th,
 .nilai-table td {
     border: 1px solid rgba(15, 23, 42, 0.08);
     padding: 10px 8px;
-    font-size: 11.5px;
     color: #475569;
     vertical-align: middle;
     background: #fff;
     line-height: 1.4;
+    text-align: center;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
 }
 
 .nilai-table th {
@@ -131,66 +120,76 @@
     font-weight: 700;
     text-transform: uppercase;
     color: #5b6778;
-    text-align: center;
     white-space: nowrap;
 }
 
-.nilai-table td {
-    word-break: break-word;
-    overflow-wrap: anywhere;
-}
+.nilai-table td { font-size: 11px; }
 
-.nilai-table tbody tr:hover td {
-    background: #fbfcfd;
-}
+/* Column Widths */
+.nilai-table th:nth-child(1),
+.nilai-table td:nth-child(1) { width: 5%; min-width: 40px; }
 
-/* Grade badge styles */
-.nilai-table td[class*="grade-"] {
-    font-weight: 600;
-    padding: 6px 10px;
-    border-radius: 8px;
-    display: inline-block;
-    min-width: 40px;
-    text-align: center;
-}
+.nilai-table th:nth-child(2),
+.nilai-table td:nth-child(2) { width: 25%; min-width: 150px; text-align: left; }
 
-.grade-a, .grade-a { background: var(--grade-a-bg); color: var(--grade-a); }
-.grade-b, .grade-b { background: var(--grade-b-bg); color: var(--grade-b); }
-.grade-c, .grade-c { background: var(--grade-c-bg); color: var(--grade-c); }
-.grade-d, .grade-d { background: var(--grade-d-bg); color: var(--grade-d); }
-.grade-e, .grade-e { background: var(--grade-e-bg); color: var(--grade-e); }
+.nilai-table th:nth-child(3),
+.nilai-table td:nth-child(3) { width: 8%; min-width: 60px; }
 
-/* Keterangan badge styles */
-.nilai-table td[class*="ket-"] {
+.nilai-table th:nth-child(4),
+.nilai-table td:nth-child(4) { width: 8%; min-width: 60px; }
+
+.nilai-table th:nth-child(5),
+.nilai-table td:nth-child(5) { width: 8%; min-width: 60px; }
+
+.nilai-table th:nth-child(6),
+.nilai-table td:nth-child(6) { width: 8%; min-width: 60px; }
+
+.nilai-table th:nth-child(7),
+.nilai-table td:nth-child(7) { width: 7%; min-width: 55px; font-weight: 600; }
+
+.nilai-table th:nth-child(8),
+.nilai-table td:nth-child(8) { width: 7%; min-width: 55px; }
+
+.nilai-table th:nth-child(9),
+.nilai-table td:nth-child(9) { width: 18%; min-width: 120px; text-align: left; }
+
+.nilai-table th:nth-child(10),
+.nilai-table td:nth-child(10) { width: 10%; min-width: 80px; }
+
+.nilai-table tbody tr:hover td { background: #fbfcfd; }
+
+/* ===== Grade & Ket: NORMAL TEXT (tanpa badge) ===== */
+.nilai-table td:nth-child(8),
+.nilai-table td:nth-child(10) {
+    font-size: 11px;
     font-weight: 500;
-    padding: 4px 8px;
-    border-radius: 6px;
-    font-size: 10px;
-}
-
-.ket-lulus { background: var(--ket-lulus-bg); color: var(--ket-lulus); }
-.ket-tidak-lulus { background: var(--ket-tidak-bg); color: var(--ket-tidak); }
-
-.nilai-table td.center {
+    color: var(--nl-text);
     text-align: center;
+    padding: 10px 8px;
 }
 
-.nilai-table td.right {
-    text-align: right;
+/* Warna opsional untuk grade (tanpa background) */
+.nilai-table td:nth-child(8) {
+    font-weight: 600;
 }
 
-.nilai-table td.left {
-    text-align: left;
-}
+.nilai-table td:nth-child(8):contains("A") { color: #059669; }
+.nilai-table td:nth-child(8):contains("B") { color: #0284c7; }
+.nilai-table td:nth-child(8):contains("C") { color: #d97706; }
+.nilai-table td:nth-child(8):contains("D"),
+.nilai-table td:nth-child(8):contains("E") { color: #dc2626; }
 
-.nilai-table .strong {
-    font-weight: 700;
-}
+.nilai-table td:nth-child(10):contains("Lulus") { color: #059669; font-weight: 600; }
+.nilai-table td:nth-child(10):contains("Tidak") { color: #dc2626; font-weight: 600; }
+
+/* Alignment helpers */
+.nilai-table td.center { text-align: center !important; }
+.nilai-table td.right { text-align: right !important; }
+.nilai-table td.left { text-align: left !important; }
+.nilai-table .strong { font-weight: 700; }
 
 /* Empty state */
-.empty-row {
-    padding: 40px 20px !important;
-}
+.empty-row { padding: 40px 20px !important; }
 
 .empty-state {
     display: flex;
@@ -199,52 +198,65 @@
     justify-content: center;
     text-align: center;
     color: var(--nl-muted);
+    padding: 20px;
 }
 
-.empty-icon {
-    font-size: 32px;
-    margin-bottom: 10px;
-    opacity: 0.6;
-}
+.empty-icon { font-size: 32px; margin-bottom: 10px; opacity: 0.6; }
+.empty-state p { margin: 0 0 4px; font-weight: 500; color: var(--nl-text); font-size: 12px; }
+.empty-state small { font-size: 10px; color: var(--nl-muted); }
 
-.empty-state p {
-    margin: 0 0 4px;
-    font-weight: 500;
-    color: var(--nl-text);
-}
-
-.empty-state small {
-    font-size: 10px;
-}
-
-/* Pagination */
+/* ===== Pagination: Compact + Center Stable ===== */
 .nilai-pagination {
     margin-top: 20px;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 12px;
-    flex-wrap: wrap;
+    width: 100%;
+    padding: 4px 0;
 }
 
+.pagination-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+    padding: 2px 0;
+}
+
+.pagination-wrapper::-webkit-scrollbar { display: none; }
+
+.pagination-inner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    flex-shrink: 0;
+    margin: 0 auto;
+}
+
+/* Nav buttons: SMALL & COMPACT */
 .page-nav {
-    width: 40px;
-    height: 40px;
+    width: 32px;
+    height: 32px;
     border: 1px solid var(--nl-border);
-    border-radius: 10px;
+    border-radius: 8px;
     background: #fff;
     color: #334155;
     text-decoration: none;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 600;
     transition: all 0.16s ease;
     cursor: pointer;
+    flex-shrink: 0;
 }
 
-.page-nav:hover {
+.page-nav:hover:not(.disabled) {
     background: #f8fafc;
     border-color: var(--nl-accent);
     color: var(--nl-accent);
@@ -256,157 +268,211 @@
     cursor: not-allowed;
 }
 
-.page-info {
-    font-size: 12px;
+/* Page numbers: SMALL */
+.page-numbers {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    flex-wrap: nowrap;
+}
+
+.page-number {
+    min-width: 28px;
+    height: 28px;
+    border: 1px solid var(--nl-border);
+    border-radius: 6px;
+    background: #fff;
+    color: #334155;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 600;
+    transition: all 0.16s ease;
+    flex-shrink: 0;
+    text-align: center;
+}
+
+.page-number:hover {
+    background: #f8fafc;
+    border-color: var(--nl-accent);
+    color: var(--nl-accent);
+}
+
+.page-number.active {
+    background: var(--nl-accent);
+    color: #fff;
+    border-color: var(--nl-accent);
+    font-weight: 700;
+}
+
+.page-number.no-data {
+    opacity: 0.6;
+    border-style: dashed;
+}
+
+/* Ellipsis */
+.page-ellipsis {
+    min-width: 16px;
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--nl-muted);
+    cursor: default;
+    flex-shrink: 0;
+    user-select: none;
+}
+
+/* Page info */
+.page-info-text {
+    margin-top: 10px;
+    text-align: center;
+    font-size: 11px;
     color: var(--nl-muted);
     font-weight: 500;
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 6px;
+    flex-wrap: wrap;
+    width: 100%;
 }
 
-.page-info strong {
-    color: var(--nl-text);
-    font-weight: 700;
-}
+.page-info-text strong { color: var(--nl-text); font-weight: 700; }
+.page-info-text .info-note { color: var(--nl-muted); font-size: 10px; font-weight: 400; }
 
 /* Info box */
 .nilai-info {
     margin-top: 16px;
     padding: 12px 16px;
-    background: var(--info-soft);
-    border: 1px solid var(--info-border);
+    background: #dbeafe;
+    border: 1px solid #93c5fd;
     border-radius: 12px;
-    color: var(--info);
+    color: #1e40af;
     font-size: 11px;
     text-align: center;
 }
 
-.nilai-info p {
-    margin: 0;
+.nilai-info p { margin: 0; }
+.nilai-info strong { color: #0f172a; }
+
+/* ===== Responsive: Desktop (>= 992px) ===== */
+@media (min-width: 992px) {
+    .nilai-card { padding: 20px; max-width: 1200px; margin: 0 auto; }
+    .nilai-table { min-width: 900px; font-size: 12px; }
+    .nilai-table th, .nilai-table td { padding: 11px 10px; font-size: 11.5px; }
+    .nilai-table th { font-size: 11px; }
+    .page-nav { width: 34px; height: 34px; }
+    .page-number { min-width: 30px; height: 30px; font-size: 11px; }
 }
 
-.nilai-info strong {
-    color: var(--nl-text);
+/* ===== Responsive: Tablet (768px - 991px) ===== */
+@media (max-width: 991px) and (min-width: 768px) {
+    .nilai-card { padding: 16px; }
+    .nilai-box { padding: 12px; }
+    .nilai-semester-title { font-size: 15px; padding: 8px 12px; }
+    .nilai-table { min-width: 800px; font-size: 11px; }
+    .nilai-table th, .nilai-table td { padding: 9px 7px; font-size: 10.5px; }
+    .nilai-table th { font-size: 10px; }
+    .page-nav { width: 32px; height: 32px; }
+    .page-number { min-width: 28px; height: 28px; font-size: 11px; }
+    .page-ellipsis { height: 28px; font-size: 12px; }
 }
 
-/* Responsive */
-@media (max-width: 1200px) {
-    .nilai-table th,
-    .nilai-table td {
-        font-size: 11px;
-        padding: 9px 7px;
-    }
+/* ===== Responsive: Mobile (<= 767px) ===== */
+@media (max-width: 767px) {
+    .nilai-card { padding: 14px; border-radius: 16px; }
+    .nilai-head { flex-direction: column; align-items: flex-start; gap: 8px; }
+    .nilai-title { font-size: 14px; }
+    .nilai-sub { font-size: 11px; }
+    .nilai-box { padding: 10px; border-radius: 14px; }
+    .nilai-semester-title { font-size: 14px; margin-bottom: 12px; padding: 8px 10px; }
     
-    .nilai-table th {
+    /* Table mobile */
+    .nilai-table { min-width: 700px; font-size: 10.5px; }
+    .nilai-table th, .nilai-table td { padding: 8px 6px; font-size: 10px; }
+    .nilai-table th { font-size: 9.5px; }
+    .nilai-table td:nth-child(2), .nilai-table td:nth-child(9) { text-align: left; font-size: 10px; }
+    
+    /* Grade/Ket mobile: tetap normal text */
+    .nilai-table td:nth-child(8),
+    .nilai-table td:nth-child(10) {
         font-size: 10px;
-    }
-}
-
-@media (max-width: 980px) {
-    .nilai-card {
-        padding: 14px;
-    }
-    
-    .nilai-box {
-        padding: 12px;
-    }
-    
-    .nilai-semester-title {
-        font-size: 15px;
-    }
-    
-    .nilai-table {
-        min-width: 800px;
-    }
-    
-    .nilai-table th,
-    .nilai-table td {
-        font-size: 10.5px;
         padding: 8px 6px;
     }
+    
+    /* Pagination mobile: compact, horizontal scroll, tetap center */
+    .nilai-pagination { margin-top: 16px; padding: 4px 0; }
+    .pagination-wrapper { justify-content: center; }
+    .pagination-inner { justify-content: center; padding: 0 8px; gap: 6px; }
+    
+    .page-nav { width: 30px; height: 30px; }
+    .page-numbers { gap: 4px; }
+    .page-number { min-width: 26px; height: 26px; font-size: 10px; }
+    .page-ellipsis { height: 26px; font-size: 11px; }
+    
+    .page-info-text { font-size: 10px; margin-top: 8px; }
 }
 
-@media (max-width: 768px) {
-    .nilai-card {
-        padding: 14px;
-        border-radius: 16px;
-    }
-    
-    .nilai-box {
-        padding: 10px;
-        border-radius: 14px;
-    }
-    
-    .nilai-title {
-        font-size: 14px;
-    }
-    
-    .nilai-sub {
-        font-size: 12px;
-    }
-    
-    .nilai-semester-title {
-        font-size: 14px;
-        margin-bottom: 12px;
-    }
-    
-    .nilai-table {
-        min-width: 700px;
-    }
-    
-    .nilai-table th,
-    .nilai-table td {
-        padding: 8px 6px;
-        font-size: 10px;
-    }
-    
-    .nilai-table th {
-        font-size: 9.5px;
-    }
-    
-    .page-nav {
-        width: 36px;
-        height: 36px;
-        font-size: 12px;
-    }
-    
-    .page-info {
-        font-size: 11px;
-    }
-}
-
+/* ===== Responsive: Mobile XS (<= 480px) ===== */
 @media (max-width: 480px) {
-    .nilai-head {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 8px;
+    .nilai-card { padding: 12px; border-radius: 14px; }
+    .nilai-box { padding: 8px; border-radius: 12px; }
+    .nilai-semester-title { font-size: 13px; padding: 6px 10px; }
+    
+    /* Table XS */
+    .nilai-table { min-width: 650px; font-size: 10px; }
+    .nilai-table th, .nilai-table td { padding: 7px 5px; font-size: 9.5px; }
+    .nilai-table th { font-size: 9px; }
+    .nilai-table td:nth-child(2), .nilai-table td:nth-child(9) { font-size: 9.5px; }
+    
+    /* Grade/Ket XS */
+    .nilai-table td:nth-child(8),
+    .nilai-table td:nth-child(10) {
+        font-size: 9px;
+        padding: 7px 5px;
     }
     
-    .nilai-pagination {
-        gap: 8px;
-    }
+    /* Pagination XS: tetap compact */
+    .nilai-pagination { margin-top: 14px; }
+    .pagination-inner { gap: 5px; padding: 0 6px; }
     
-    .page-nav {
-        width: 34px;
-        height: 34px;
-    }
+    .page-nav { width: 28px; height: 28px; }
+    .page-number { min-width: 24px; height: 24px; font-size: 10px; }
+    .page-ellipsis { height: 24px; font-size: 10px; }
+    
+    .page-info-text { font-size: 9px; margin-top: 6px; }
+    .empty-state p { font-size: 11px; }
+    .empty-state small { font-size: 9px; }
 }
 
-/* Print styles */
+/* Print */
 @media print {
-    .nilai-pagination,
-    .sidebar,
-    .topbar {
-        display: none !important;
-    }
-    
-    .nilai-card {
-        box-shadow: none;
-        border: 1px solid #000;
-    }
-    
-    .nilai-table {
-        min-width: 100%;
-    }
+    .nilai-pagination, .sidebar, .topbar, .nilai-info { display: none !important; }
+    .nilai-card { box-shadow: none; border: 1px solid #000; padding: 10px; }
+    .nilai-table { min-width: 100%; font-size: 9px; }
+    .nilai-table th, .nilai-table td { padding: 5px 4px; border: 1px solid #000; }
+}
+
+/* Utility */
+.nilai-card, .nilai-box, .nilai-table-shell, .nilai-pagination {
+    will-change: transform;
+    backface-visibility: hidden;
+}
+
+.nilai-table td.center, .nilai-table th.center, .page-number, .page-nav {
+    white-space: nowrap;
+}
+
+.pagination-inner { min-width: min-content; }
+.nilai-table-wrap { scroll-behavior: smooth; }
+
+.page-number:focus, .page-nav:focus {
+    outline: 2px solid var(--nl-accent);
+    outline-offset: 2px;
 }
