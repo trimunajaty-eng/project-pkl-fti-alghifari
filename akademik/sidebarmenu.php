@@ -38,13 +38,14 @@ if (!isset($baseUrl)) {
           <span class="menu-text">Input Nilai</span>
         </a>
 
-        <a href="#" class="menu-item <?= $currentPage === 'datanilai' ? 'active' : ''; ?>">
+        <!-- Ganti bagian ini di sidebarmenu.php -->
+        <a href="<?= $baseUrl; ?>mahasiswa/inputmahasiswa.php" class="menu-item <?= $currentPage === 'inputmhs' ? 'active' : ''; ?>">
           <span class="menu-icon">
             <svg viewBox="0 0 24 24" fill="none">
-              <path d="M4 5h16M4 10h16M4 15h10M4 20h16"/>
+              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2m8-9a4 4 0 1 1-8 0 4 4 0 0 1 8 0Zm9 4v-3a3 3 0 0 0-3-3h-2m5 0a3 3 0 0 1 3 3v3m-6-6h4"/>
             </svg>
           </span>
-          <span class="menu-text">Data Nilai</span>
+          <span class="menu-text">Input Mahasiswa</span>
         </a>
 
         <a href="#" class="menu-item <?= $currentPage === 'laporan' ? 'active' : ''; ?>">
