@@ -1,407 +1,515 @@
+/**
+ * Dashboard Akademik - Trading Style Wave Chart
+ * Version: 5.0
+ * Fitur: Smooth wave animation, interactive tooltip, cursor tracking
+ */
+
 (function () {
-  const body = document.body;
-  const app = document.getElementById("app");
-  const sidebar = document.getElementById("sidebar");
-  const menuToggle = document.getElementById("menuToggle");
-  const sidebarOverlay = document.getElementById("sidebarOverlay");
+    'use strict';
 
-  const chartCanvas = document.getElementById("chartCanvas");
-  const yMax = document.getElementById("yMax");
-  const yMid = document.getElementById("yMid");
+    // ===== DOM Elements =====
+    const body = document.body;
+    const html = document.documentElement;
+    const sidebar = document.getElementById('sidebar');
+    const menuToggle = document.getElementById('menuToggle');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+    const chartCanvas = document.getElementById('chartCanvas');
+    const yMaxEl = document.getElementById('yMax');
+    const yMidEl = document.getElementById('yMid');
+    const chartXLabelsEl = document.getElementById('chartXLabels');
+    
+    const KEY_COLLAPSE = 'ak_sidebar_collapsed';
+    const rawData = Array.isArray(window.__CHART_DATA__) ? window.__CHART_DATA__ : [];
+    
+    let tooltip = null;
+    let cursorLine = null;
+    let cursorDot = null;
 
-  const summaryTotal = document.getElementById("summaryTotal");
-  const summaryPeak = document.getElementById("summaryPeak");
-  const summaryTrend = document.getElementById("summaryTrend");
+    console.log('[Dashboard] Chart data loaded:', rawData);
 
-  const filterProdiLabel = document.getElementById("filterProdiLabel");
-  const filterGenderLabel = document.getElementById("filterGenderLabel");
-
-  const rawData = Array.isArray(window.dashboardChartData) ? window.dashboardChartData : [];
-  const KEY_COLLAPSE = "ak_sidebar_collapsed";
-
-  let selectedProdi = "all";
-  let selectedGender = "all";
-
-  function isMobile() {
-    return window.innerWidth <= 860;
-  }
-
-  function syncBurgerIcon() {
-    if (!menuToggle) return;
-
-    const isX =
-      (isMobile() && body.classList.contains("sidebar-open")) ||
-      (!isMobile() && body.classList.contains("sidebar-collapsed"));
-
-    menuToggle.classList.toggle("is-x", isX);
-  }
-
-  function applyPersistedCollapse() {
-    if (isMobile()) {
-      body.classList.remove("sidebar-collapsed");
-      document.documentElement.classList.remove("sidebar-collapsed-init");
-      return;
+    // ===== Utility Functions =====
+    function isMobile() { 
+        return window.innerWidth <= 860; 
     }
 
-    const saved = localStorage.getItem(KEY_COLLAPSE);
-
-    if (saved === "1") {
-      body.classList.add("sidebar-collapsed");
-    } else {
-      body.classList.remove("sidebar-collapsed");
+    function formatNum(n) { 
+        return new Intl.NumberFormat('id-ID').format(n || 0); 
     }
 
-    document.documentElement.classList.remove("sidebar-collapsed-init");
-    syncBurgerIcon();
-  }
-
-  function saveCollapseState() {
-    const v = body.classList.contains("sidebar-collapsed") ? "1" : "0";
-    localStorage.setItem(KEY_COLLAPSE, v);
-  }
-
-  function closeMobileSidebar() {
-    body.classList.remove("sidebar-open");
-    syncBurgerIcon();
-  }
-
-  function toggleSidebar() {
-    if (isMobile()) {
-      body.classList.toggle("sidebar-open");
-    } else {
-      body.classList.toggle("sidebar-collapsed");
-      saveCollapseState();
-    }
-    syncBurgerIcon();
-  }
-
-  applyPersistedCollapse();
-
-  if (menuToggle) {
-    menuToggle.addEventListener("click", function (e) {
-      e.preventDefault();
-      e.stopPropagation();
-      toggleSidebar();
-    });
-  }
-
-  if (sidebarOverlay) {
-    sidebarOverlay.addEventListener("click", closeMobileSidebar);
-  }
-
-  document.addEventListener("click", function (e) {
-    if (isMobile() && body.classList.contains("sidebar-open")) {
-      const insideSidebar = sidebar && sidebar.contains(e.target);
-      const clickToggle = menuToggle && menuToggle.contains(e.target);
-
-      if (!insideSidebar && !clickToggle) {
-        closeMobileSidebar();
-      }
-    }
-  });
-
-  window.addEventListener("resize", function () {
-    if (!isMobile()) {
-      closeMobileSidebar();
-      applyPersistedCollapse();
-    } else {
-      syncBurgerIcon();
-    }
-    renderChart();
-  });
-
-  const filterPopups = document.querySelectorAll(".filter-popup");
-  const filterToggles = document.querySelectorAll(".filter-toggle");
-  const popupItems = document.querySelectorAll(".popup-item");
-
-  function closeAllPopups() {
-    filterPopups.forEach(function (popup) {
-      popup.classList.remove("open");
-    });
-  }
-
-  filterToggles.forEach(function (toggle) {
-    toggle.addEventListener("click", function (e) {
-      e.stopPropagation();
-
-      const wrapper = toggle.closest(".filter-popup");
-      const isOpen = wrapper.classList.contains("open");
-
-      closeAllPopups();
-
-      if (!isOpen) {
-        wrapper.classList.add("open");
-      }
-    });
-  });
-
-  popupItems.forEach(function (item) {
-    item.addEventListener("click", function () {
-      const group = item.getAttribute("data-filter-group");
-      const value = item.getAttribute("data-value");
-      const text = item.textContent.trim();
-
-      document.querySelectorAll('.popup-item[data-filter-group="' + group + '"]').forEach(function (el) {
-        el.classList.remove("active");
-      });
-
-      item.classList.add("active");
-
-      if (group === "prodi") {
-        selectedProdi = value;
-        if (filterProdiLabel) filterProdiLabel.textContent = text;
-      }
-
-      if (group === "gender") {
-        selectedGender = value;
-        if (filterGenderLabel) filterGenderLabel.textContent = text;
-      }
-
-      closeAllPopups();
-      renderChart();
-    });
-  });
-
-  document.addEventListener("click", function (e) {
-    if (!e.target.closest(".filter-popup")) {
-      closeAllPopups();
-    }
-  });
-
-  function getFilteredSeries() {
-    const filtered = rawData.filter(function (item) {
-      const matchProdi = selectedProdi === "all" || item.program_studi === selectedProdi;
-      const matchGender = selectedGender === "all" || item.jenis_kelamin === selectedGender;
-      return matchProdi && matchGender;
-    });
-
-    const grouped = {};
-
-    filtered.forEach(function (item) {
-      const tahun = String(item.tahun || "");
-      if (!tahun) return;
-
-      if (!grouped[tahun]) grouped[tahun] = 0;
-      grouped[tahun] += Number(item.total || 0);
-    });
-
-    return Object.keys(grouped)
-      .sort(function (a, b) { return Number(a) - Number(b); })
-      .map(function (tahun) {
-        return { tahun: tahun, total: grouped[tahun] };
-      });
-  }
-
-  function formatNumber(number) {
-    return new Intl.NumberFormat("id-ID").format(number || 0);
-  }
-
-  function updateSummary(series) {
-    const total = series.reduce(function (sum, item) {
-      return sum + item.total;
-    }, 0);
-
-    let peak = "-";
-    let peakValue = 0;
-
-    series.forEach(function (item) {
-      if (item.total >= peakValue) {
-        peakValue = item.total;
-        peak = item.tahun;
-      }
-    });
-
-    let trend = "Stabil";
-    if (series.length >= 2) {
-      const first = series[0].total;
-      const last = series[series.length - 1].total;
-
-      if (last > first) trend = "Naik";
-      else if (last < first) trend = "Turun";
+    function calculateTrend(prev, curr) {
+        if (prev == null || prev === 0) {
+            return { text: 'Baru', class: 'up', icon: '✨', diff: 0 };
+        }
+        const diff = ((curr - prev) / prev) * 100;
+        if (diff > 10) return { text: `+${diff.toFixed(1)}%`, class: 'up', icon: '📈', diff };
+        if (diff > 2) return { text: `+${diff.toFixed(1)}%`, class: 'up', icon: '↑', diff };
+        if (diff < -10) return { text: `${diff.toFixed(1)}%`, class: 'down', icon: '📉', diff };
+        if (diff < -2) return { text: `${diff.toFixed(1)}%`, class: 'down', icon: '↓', diff };
+        return { text: 'Stabil', class: 'stable', icon: '→', diff };
     }
 
-    if (summaryTotal) summaryTotal.textContent = formatNumber(total);
-    if (summaryPeak) summaryPeak.textContent = peak === "-" ? "-" : peak + " (" + formatNumber(peakValue) + ")";
-    if (summaryTrend) summaryTrend.textContent = trend;
-  }
-
-  function buildPath(points) {
-    if (!points.length) return "";
-    if (points.length === 1) return "M " + points[0].x + " " + points[0].y;
-
-    let d = "M " + points[0].x + " " + points[0].y;
-
-    for (let i = 0; i < points.length - 1; i++) {
-      const current = points[i];
-      const next = points[i + 1];
-      const cx = (current.x + next.x) / 2;
-
-      d += " C " + cx + " " + current.y + ", " + cx + " " + next.y + ", " + next.x + " " + next.y;
+    // Create smooth curve path using Catmull-Rom spline
+    function createSmoothPath(points, tension = 0.4) {
+        if (!points || points.length === 0) return '';
+        if (points.length === 1) {
+            return `M ${points[0].x} ${points[0].y}`;
+        }
+        if (points.length === 2) {
+            return `M ${points[0].x} ${points[0].y} L ${points[1].x} ${points[1].y}`;
+        }
+        
+        let d = `M ${points[0].x} ${points[0].y}`;
+        
+        for (let i = 0; i < points.length - 1; i++) {
+            const p0 = points[Math.max(0, i - 1)];
+            const p1 = points[i];
+            const p2 = points[i + 1];
+            const p3 = points[Math.min(points.length - 1, i + 2)];
+            
+            const cp1x = p1.x + (p2.x - p0.x) * tension / 3;
+            const cp1y = p1.y + (p2.y - p0.y) * tension / 3;
+            const cp2x = p2.x - (p3.x - p1.x) * tension / 3;
+            const cp2y = p2.y - (p3.y - p1.y) * tension / 3;
+            
+            d += ` C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${p2.x} ${p2.y}`;
+        }
+        
+        return d;
     }
 
-    return d;
-  }
-
-  const studentRows = document.querySelectorAll(".student-row");
-  const studentModal = document.getElementById("studentModal");
-  const studentModalOverlay = document.getElementById("studentModalOverlay");
-  const studentModalClose = document.getElementById("studentModalClose");
-
-  const modalNim = document.getElementById("modalNim");
-  const modalNama = document.getElementById("modalNama");
-  const modalProdi = document.getElementById("modalProdi");
-  const modalKelas = document.getElementById("modalKelas");
-  const modalJk = document.getElementById("modalJk");
-
-  function openStudentModal(data) {
-    if (!studentModal) return;
-
-    if (modalNim) modalNim.textContent = data.nim || "-";
-    if (modalNama) modalNama.textContent = data.nama || "-";
-    if (modalProdi) modalProdi.textContent = data.prodi || "-";
-    if (modalKelas) modalKelas.textContent = data.kelas || "-";
-    if (modalJk) modalJk.textContent = data.jk || "-";
-
-    studentModal.classList.add("show");
-    body.style.overflow = "hidden";
-  }
-
-  function closeStudentModal() {
-    if (!studentModal) return;
-    studentModal.classList.remove("show");
-    body.style.overflow = "";
-  }
-
-  studentRows.forEach(function (row) {
-    row.addEventListener("click", function () {
-      openStudentModal({
-        nim: row.getAttribute("data-nim"),
-        nama: row.getAttribute("data-nama"),
-        prodi: row.getAttribute("data-prodi"),
-        kelas: row.getAttribute("data-kelas"),
-        jk: row.getAttribute("data-jk")
-      });
-    });
-
-    row.addEventListener("keydown", function (e) {
-      if (e.key === "Enter" || e.key === " ") {
-        e.preventDefault();
-        row.click();
-      }
-    });
-  });
-
-  if (studentModalOverlay) {
-    studentModalOverlay.addEventListener("click", closeStudentModal);
-  }
-
-  if (studentModalClose) {
-    studentModalClose.addEventListener("click", closeStudentModal);
-  }
-
-  document.addEventListener("keydown", function (e) {
-    if (e.key === "Escape") {
-      closeStudentModal();
-      closeAllPopups();
-      closeMobileSidebar();
-    }
-  });
-
-  function renderChart() {
-    if (!chartCanvas) return;
-
-    const series = getFilteredSeries();
-    updateSummary(series);
-
-    const width = Math.max(chartCanvas.clientWidth, 320);
-    const height = window.innerWidth <= 640 ? 200 : 220;
-
-    if (!series.length) {
-      chartCanvas.innerHTML = `
-        <div style="height:${height}px;display:flex;align-items:center;justify-content:center;color:#6b7280;font-size:11px;">
-          Belum ada data yang cocok dengan filter.
-        </div>
-      `;
-      if (yMax) yMax.textContent = "0";
-      if (yMid) yMid.textContent = "0";
-      return;
+    // Create or get tooltip element
+    function getTooltip() {
+        if (!tooltip) {
+            tooltip = document.createElement('div');
+            tooltip.id = 'chartTooltip';
+            tooltip.className = 'chart-tooltip';
+            tooltip.setAttribute('aria-hidden', 'true');
+            tooltip.innerHTML = `
+                <div class="tooltip-header">
+                    <span class="tooltip-year">----</span>
+                    <span class="tooltip-value">---</span>
+                </div>
+                <div class="tooltip-trend">
+                    <span class="trend-badge stable">
+                        <span class="trend-icon">→</span> Stabil
+                    </span>
+                </div>
+            `;
+            if (chartCanvas && chartCanvas.parentElement) {
+                chartCanvas.parentElement.appendChild(tooltip);
+            }
+        }
+        return tooltip;
     }
 
-    const padding = { top: 16, right: 16, bottom: 30, left: 8 };
-    const innerWidth = width - padding.left - padding.right;
-    const innerHeight = height - padding.top - padding.bottom;
+    // ===== SIDEBAR FUNCTIONS =====
+    function syncBurgerIcon() {
+        if (!menuToggle) return;
+        const isX = (isMobile() && body.classList.contains('sidebar-open')) ||
+                    (!isMobile() && body.classList.contains('sidebar-collapsed'));
+        menuToggle.classList.toggle('is-x', isX);
+    }
 
-    const maxRaw = Math.max.apply(null, series.map(function (item) {
-      return item.total;
-    }).concat([1]));
+    function applyPersistedCollapse() {
+        if (isMobile()) {
+            body.classList.remove('sidebar-collapsed');
+            html.classList.remove('sidebar-collapsed-init');
+            return;
+        }
+        const saved = localStorage.getItem(KEY_COLLAPSE);
+        if (saved === '1') {
+            body.classList.add('sidebar-collapsed');
+        } else {
+            body.classList.remove('sidebar-collapsed');
+        }
+        html.classList.remove('sidebar-collapsed-init');
+        syncBurgerIcon();
+    }
 
-    const maxValue = maxRaw <= 4 ? 4 : Math.ceil(maxRaw / 2) * 2;
-    const midValue = Math.round(maxValue / 2);
+    function saveCollapseState() {
+        const v = body.classList.contains('sidebar-collapsed') ? '1' : '0';
+        try { localStorage.setItem(KEY_COLLAPSE, v); } catch (e) {}
+    }
 
-    if (yMax) yMax.textContent = formatNumber(maxValue);
-    if (yMid) yMid.textContent = formatNumber(midValue);
+    function closeMobileSidebar() { 
+        body.classList.remove('sidebar-open'); 
+        syncBurgerIcon(); 
+    }
 
-    const points = series.map(function (item, index) {
-      const x = series.length === 1
-        ? padding.left + innerWidth / 2
-        : padding.left + (index * (innerWidth / (series.length - 1)));
+    function toggleSidebar() {
+        if (isMobile()) {
+            body.classList.toggle('sidebar-open');
+        } else {
+            body.classList.toggle('sidebar-collapsed');
+            saveCollapseState();
+        }
+        syncBurgerIcon();
+    }
 
-      const y = padding.top + innerHeight - ((item.total / maxValue) * innerHeight);
+    // ===== CHART RENDERING =====
+    function renderChart() {
+        console.log('[Dashboard] renderChart() called');
+        console.log('[Dashboard] chartCanvas element:', chartCanvas);
+        console.log('[Dashboard] rawData:', rawData);
+        
+        if (!chartCanvas) {
+            console.error('[Dashboard] chartCanvas element not found!');
+            return;
+        }
 
-      return {
-        x: x,
-        y: y,
-        label: item.tahun,
-        value: item.total
-      };
+        const tooltip = getTooltip();
+        const series = rawData;
+        
+        // Get dimensions
+        const width = Math.max(chartCanvas.clientWidth, 340);
+        const height = window.innerWidth <= 640 ? 220 : 260;
+        
+        console.log('[Dashboard] Chart dimensions:', { width, height });
+
+        // Empty state
+        if (!series || series.length === 0) {
+            console.log('[Dashboard] No chart data available');
+            chartCanvas.innerHTML = `
+                <div style="display:flex;align-items:center;justify-content:center;height:${height}px;color:#64748b;font-size:11px;gap:8px;">
+                    <span style="font-size:24px;opacity:0.5;">📊</span>
+                    <div>
+                        <div style="font-weight:600;margin-bottom:4px;">Belum ada data chart</div>
+                        <div style="font-size:9.5px;opacity:0.8;">Data pendaftaran akan muncul setelah ada mahasiswa terdaftar</div>
+                    </div>
+                </div>
+            `;
+            if (yMaxEl) yMaxEl.textContent = '0';
+            if (yMidEl) yMidEl.textContent = '0';
+            if (chartXLabelsEl) chartXLabelsEl.innerHTML = '';
+            return;
+        }
+
+        // Chart configuration
+        const padding = { top: 24, right: 24, bottom: 36, left: 4 };
+        const innerW = width - padding.left - padding.right;
+        const innerH = height - padding.top - padding.bottom;
+        
+        const values = series.map(s => s.total);
+        const maxVal = Math.max(...values, 1);
+        const maxValue = maxVal <= 20 ? 20 : Math.ceil(maxVal / 10) * 10;
+        const midValue = Math.round(maxValue / 2);
+
+        // Update Y-axis labels
+        if (yMaxEl) yMaxEl.textContent = formatNum(maxValue);
+        if (yMidEl) yMidEl.textContent = formatNum(midValue);
+
+        // Generate points
+        const points = series.map((item, i) => {
+            const x = padding.left + (series.length === 1 ? innerW / 2 : (i * (innerW / (series.length - 1))));
+            const y = padding.top + innerH - ((item.total / maxValue) * innerH);
+            return { ...item, x, y, index: i };
+        });
+
+        console.log('[Dashboard] Generated points:', points);
+
+        // Create wave path
+        const wavePath = createSmoothPath(points, 0.4);
+        
+        // Create area path
+        const areaPath = wavePath + 
+            ` L ${points[points.length-1].x} ${padding.top + innerH}` +
+            ` L ${points[0].x} ${padding.top + innerH} Z`;
+
+        // Grid lines
+        const gridLines = [0, 0.5, 1].map(step => {
+            const y = padding.top + innerH - (step * innerH);
+            return `<line x1="${padding.left}" y1="${y}" x2="${width - padding.right}" y2="${y}" 
+                    stroke="rgba(148,163,184,0.12)" stroke-dasharray="5 5" stroke-width="1"></line>`;
+        }).join('');
+
+        // Data point circles
+        const pointCircles = points.map((p, i) => `
+            <circle class="chart-point ${i === points.length - 1 ? 'active' : ''}" 
+                    cx="${p.x}" cy="${p.y}" r="5"
+                    data-tahun="${p.tahun}" data-value="${p.total}" data-index="${i}"
+                    style="animation-delay: ${0.3 + (i * 0.08)}s">
+            </circle>
+        `).join('');
+
+        // X-axis labels (SVG)
+        const xLabelsSvg = points.map(p => `
+            <text x="${p.x}" y="${height - 12}" 
+                  text-anchor="middle" fill="#64748b" 
+                  font-size="9.5" font-weight="500" font-family="Poppins">
+                ${p.tahun}
+            </text>
+        `).join('');
+
+        // X-axis labels (HTML container)
+        if (chartXLabelsEl) {
+            chartXLabelsEl.innerHTML = points.map(p => `
+                <div class="chart-x-label" data-tahun="${p.tahun}">${p.tahun}</div>
+            `).join('');
+        }
+
+        // Hover zones
+        const hoverZones = points.map((p, i) => {
+            const zoneWidth = series.length > 1 ? (innerW / (series.length - 1)) * 0.8 : 60;
+            return `<rect x="${p.x - zoneWidth/2}" y="${padding.top}" 
+                    width="${zoneWidth}" height="${innerH}" 
+                    fill="transparent" class="chart-hover-zone"
+                    data-tahun="${p.tahun}" data-value="${p.total}" 
+                    data-index="${i}" data-x="${p.x}" data-y="${p.y}">
+            </rect>`;
+        }).join('');
+
+        // Cursor elements
+        const cursorSVG = `
+            <line class="chart-cursor-line" x1="0" y1="${padding.top}" x2="0" y2="${padding.top + innerH}"></line>
+            <circle class="chart-cursor-dot" cx="0" cy="0" r="4"></circle>
+        `;
+
+        // Render SVG
+        chartCanvas.innerHTML = `
+            <svg class="chart-svg" viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" style="width:100%;height:${height}px;">
+                <defs>
+                    <linearGradient id="waveGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stop-color="#b91c1c"/>
+                        <stop offset="50%" stop-color="#dc2626"/>
+                        <stop offset="100%" stop-color="#ea580c"/>
+                    </linearGradient>
+                    <linearGradient id="areaGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stop-color="rgba(185,28,28,0.35)"/>
+                        <stop offset="40%" stop-color="rgba(220,38,38,0.15)"/>
+                        <stop offset="100%" stop-color="rgba(234,88,12,0.02)"/>
+                    </linearGradient>
+                    <filter id="waveGlow" x="-50%" y="-50%" width="200%" height="200%">
+                        <feGaussianBlur stdDeviation="3" result="blur"/>
+                        <feFlood flood-color="#b91c1c" flood-opacity="0.4" result="glowColor"/>
+                        <feComposite in="glowColor" in2="blur" operator="in" result="softGlow"/>
+                        <feMerge>
+                            <feMergeNode in="softGlow"/>
+                            <feMergeNode in="SourceGraphic"/>
+                        </feMerge>
+                    </filter>
+                </defs>
+                
+                ${gridLines}
+                <path class="chart-wave-area ${points.length > 1 ? 'animated' : ''}" d="${areaPath}"></path>
+                <path class="chart-wave-line ${points.length > 1 ? 'animated' : ''}" d="${wavePath}" filter="url(#waveGlow)"></path>
+                ${cursorSVG}
+                ${pointCircles}
+                ${xLabelsSvg}
+                ${hoverZones}
+            </svg>
+        `;
+
+        console.log('[Dashboard] SVG rendered successfully');
+
+        // ===== Interactive Logic =====
+        cursorLine = chartCanvas.querySelector('.chart-cursor-line');
+        cursorDot = chartCanvas.querySelector('.chart-cursor-dot');
+        const hoverZonesEl = chartCanvas.querySelectorAll('.chart-hover-zone');
+        const pointCirclesEl = chartCanvas.querySelectorAll('.chart-point');
+
+        function updateTooltip(e, data) {
+            if (!tooltip) return;
+            
+            const rect = chartCanvas.getBoundingClientRect();
+            const canvasX = e.clientX - rect.left;
+            const canvasY = e.clientY - rect.top;
+            
+            const prevIdx = data.index - 1;
+            const prevVal = prevIdx >= 0 ? series[prevIdx]?.total : null;
+            const trend = calculateTrend(prevVal, data.value);
+            
+            // Update tooltip content
+            tooltip.querySelector('.tooltip-year').textContent = data.tahun;
+            tooltip.querySelector('.tooltip-value').textContent = `${formatNum(data.value)} Mahasiswa`;
+            const trendBadge = tooltip.querySelector('.trend-badge');
+            trendBadge.className = `trend-badge ${trend.class}`;
+            trendBadge.innerHTML = `<span class="trend-icon">${trend.icon}</span> ${trend.text}`;
+            
+            // Position tooltip
+            const tooltipW = 160, tooltipH = 90;
+            let tipX = canvasX - tooltipW / 2;
+            let tipY = canvasY - tooltipH - 12;
+            
+            if (tipX < 8) tipX = 8;
+            if (tipX + tooltipW > rect.width - 8) tipX = rect.width - tooltipW - 8;
+            if (tipY < 8) tipY = canvasY + 20;
+            
+            tooltip.style.left = `${tipX}px`;
+            tooltip.style.top = `${tipY}px`;
+            tooltip.classList.add('show');
+            tooltip.setAttribute('aria-hidden', 'false');
+            
+            // Update cursor
+            if (cursorLine) {
+                cursorLine.setAttribute('x1', data.x);
+                cursorLine.setAttribute('x2', data.x);
+                cursorLine.classList.add('active');
+            }
+            if (cursorDot) {
+                cursorDot.setAttribute('cx', data.x);
+                cursorDot.setAttribute('cy', data.y);
+                cursorDot.classList.add('active');
+            }
+            
+            // Highlight active point
+            pointCirclesEl.forEach((el, idx) => {
+                el.classList.toggle('active', idx === data.index);
+            });
+        }
+
+        function hideTooltip() {
+            if (!tooltip) return;
+            tooltip.classList.remove('show');
+            tooltip.setAttribute('aria-hidden', 'true');
+            if (cursorLine) cursorLine.classList.remove('active');
+            if (cursorDot) cursorDot.classList.remove('active');
+            pointCirclesEl.forEach(el => el.classList.remove('active'));
+            if (pointCirclesEl.length) {
+                pointCirclesEl[pointCirclesEl.length - 1]?.classList.add('active');
+            }
+        }
+
+        // Mouse events
+        hoverZonesEl.forEach(zone => {
+            zone.addEventListener('mouseenter', (e) => {
+                const data = {
+                    tahun: zone.dataset.tahun,
+                    value: parseInt(zone.dataset.value),
+                    index: parseInt(zone.dataset.index),
+                    x: parseFloat(zone.dataset.x),
+                    y: parseFloat(zone.dataset.y)
+                };
+                updateTooltip(e, data);
+            });
+            
+            zone.addEventListener('mousemove', (e) => {
+                const data = {
+                    tahun: zone.dataset.tahun,
+                    value: parseInt(zone.dataset.value),
+                    index: parseInt(zone.dataset.index),
+                    x: parseFloat(zone.dataset.x),
+                    y: parseFloat(zone.dataset.y)
+                };
+                updateTooltip(e, data);
+            });
+            
+            zone.addEventListener('mouseleave', hideTooltip);
+        });
+
+        // Point click
+        pointCirclesEl.forEach(point => {
+            point.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const data = {
+                    tahun: point.dataset.tahun,
+                    value: parseInt(point.dataset.value),
+                    index: parseInt(point.dataset.index),
+                    x: parseFloat(point.getAttribute('cx')),
+                    y: parseFloat(point.getAttribute('cy'))
+                };
+                updateTooltip({ clientX: e.clientX, clientY: e.clientY }, data);
+            });
+        });
+
+        // Touch support
+        hoverZonesEl.forEach(zone => {
+            zone.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                const touch = e.touches[0];
+                const data = {
+                    tahun: zone.dataset.tahun,
+                    value: parseInt(zone.dataset.value),
+                    index: parseInt(zone.dataset.index),
+                    x: parseFloat(zone.dataset.x),
+                    y: parseFloat(zone.dataset.y)
+                };
+                updateTooltip(touch, data);
+            }, { passive: false });
+        });
+
+        // Hide on outside click
+        document.addEventListener('click', (e) => {
+            if (!chartCanvas.contains(e.target) && tooltip && !tooltip.contains(e.target)) {
+                hideTooltip();
+            }
+        });
+    }
+
+    // ===== SIDEBAR EVENT LISTENERS =====
+    if (menuToggle) {
+        menuToggle.addEventListener('click', (e) => { 
+            e.preventDefault(); 
+            e.stopPropagation(); 
+            toggleSidebar(); 
+        });
+    }
+    
+    if (sidebarOverlay) {
+        sidebarOverlay.addEventListener('click', closeMobileSidebar);
+    }
+    
+    document.addEventListener('click', (e) => {
+        if (isMobile() && body.classList.contains('sidebar-open')) {
+            const inside = sidebar && sidebar.contains(e.target);
+            const toggle = menuToggle && menuToggle.contains(e.target);
+            if (!inside && !toggle) closeMobileSidebar();
+        }
+    });
+    
+    window.addEventListener('resize', () => {
+        if (!isMobile()) { 
+            closeMobileSidebar(); 
+            applyPersistedCollapse(); 
+        } else {
+            syncBurgerIcon();
+        }
+        // Debounced chart re-render
+        clearTimeout(renderChart._resizeTimer);
+        renderChart._resizeTimer = setTimeout(renderChart, 150);
     });
 
-    const linePath = buildPath(points);
-    const areaPath = linePath +
-      " L " + points[points.length - 1].x + " " + (padding.top + innerHeight) +
-      " L " + points[0].x + " " + (padding.top + innerHeight) +
-      " Z";
+    // Keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            closeMobileSidebar();
+            if (tooltip && tooltip.classList.contains('show')) {
+                hideTooltip();
+            }
+        }
+    });
 
-    const gridLines = [0, 0.5, 1].map(function (step) {
-      const y = padding.top + innerHeight - (step * innerHeight);
-      return `<line x1="${padding.left}" y1="${y}" x2="${padding.left + innerWidth}" y2="${y}" stroke="rgba(148,163,184,.18)" stroke-dasharray="4 6"></line>`;
-    }).join("");
+    // ===== INITIALIZATION =====
+    function init() {
+        console.log('[Dashboard] Initializing...');
+        applyPersistedCollapse();
+        
+        // Wait for DOM to be ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                console.log('[Dashboard] DOMContentLoaded');
+                renderChart();
+                syncBurgerIcon();
+            });
+        } else {
+            console.log('[Dashboard] DOM already ready');
+            renderChart();
+            syncBurgerIcon();
+        }
+    }
 
-    const xLabels = points.map(function (point) {
-      return `<text x="${point.x}" y="${height - 8}" text-anchor="middle" fill="#64748b" font-size="9.5" font-family="Poppins, Arial, sans-serif">${point.label}</text>`;
-    }).join("");
+    // Run initialization
+    init();
 
-    const pointNodes = points.map(function (point) {
-      return `
-        <g>
-          <circle cx="${point.x}" cy="${point.y}" r="4.2" fill="#fff" stroke="#ef4444" stroke-width="2.4"></circle>
-          <text x="${point.x}" y="${point.y - 9}" text-anchor="middle" fill="#111827" font-size="9.5" font-weight="600" font-family="Poppins, Arial, sans-serif">${point.value}</text>
-        </g>
-      `;
-    }).join("");
+    // Export for debugging
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        window.__DashboardApp = { 
+            renderChart, 
+            toggleSidebar, 
+            calculateTrend,
+            rawData,
+            chartCanvas
+        };
+        console.log('[Dashboard] Debug tools available at window.__DashboardApp');
+    }
 
-    chartCanvas.innerHTML = `
-      <svg class="chart-svg" viewBox="0 0 ${width} ${height}" preserveAspectRatio="none">
-        <defs>
-          <linearGradient id="chartLineGradient" x1="0" x2="1" y1="0" y2="0">
-            <stop offset="0%" stop-color="#ef4444"></stop>
-            <stop offset="100%" stop-color="#f97316"></stop>
-          </linearGradient>
-          <linearGradient id="chartAreaGradient" x1="0" x2="0" y1="0" y2="1">
-            <stop offset="0%" stop-color="rgba(239,68,68,0.28)"></stop>
-            <stop offset="100%" stop-color="rgba(249,115,22,0.03)"></stop>
-          </linearGradient>
-        </defs>
-
-        ${gridLines}
-        <path d="${areaPath}" fill="url(#chartAreaGradient)"></path>
-        <path d="${linePath}" fill="none" stroke="url(#chartLineGradient)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path>
-        ${pointNodes}
-        ${xLabels}
-      </svg>
-    `;
-  }
-
-  renderChart();
-  syncBurgerIcon();
 })();
