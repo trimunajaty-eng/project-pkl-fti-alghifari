@@ -68,7 +68,7 @@ if ($qProdi) {
   }
 }
 
-// Hitung tren untuk badge (opsional)
+// Hitung tren untuk badge
 $trendBadge = null;
 if (count($chartData) >= 2) {
   $last = end($chartData)['total'];
@@ -89,16 +89,10 @@ if (count($chartData) >= 2) {
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Dashboard Akademik</title>
-  
-  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-  
-  <!-- CSS -->
-  <link rel="stylesheet" href="../css/css_akademik/dashboard.css?v=5">
-  
-  <!-- Sidebar Collapse Init -->
+  <link rel="stylesheet" href="../css/css_akademik/dashboard.css?v=6">
   <script>
     (function () {
       try {
@@ -115,7 +109,6 @@ if (count($chartData) >= 2) {
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
     <main class="main">
-      <!-- Topbar -->
       <header class="topbar">
         <div class="top-left">
           <button type="button" id="menuToggle" class="menu-toggle" aria-label="Toggle menu">
@@ -131,9 +124,7 @@ if (count($chartData) >= 2) {
         </div>
       </header>
 
-      <!-- Content -->
       <div class="content">
-        
         <!-- Summary Cards -->
         <section class="summary-strip">
           <div class="summary-card">
@@ -150,12 +141,12 @@ if (count($chartData) >= 2) {
           </div>
         </section>
 
-        <!-- Chart Section: Trading-Style Wave -->
+        <!-- Chart Section: Bar Chart with Tooltip -->
         <section class="card chart-section">
           <div class="card-head card-head-flex">
             <div class="chart-title-group">
               <h2>Tren Pendaftaran Mahasiswa</h2>
-              <p class="section-subtitle">Data 5 tahun terakhir</p>
+              <p class="section-subtitle">Data 5 tahun terakhir • Arahkan kursor untuk detail</p>
             </div>
             <?php if ($trendBadge): ?>
               <span class="chart-trend-badge <?= $trendBadge['class']; ?>">
@@ -165,20 +156,17 @@ if (count($chartData) >= 2) {
           </div>
           
           <div class="card-body">
-            <div class="chart-box">
-              <!-- Y-Axis Labels -->
-              <div class="chart-y-axis">
-                <span id="yMax">0</span>
-                <span id="yMid">0</span>
-                <span>0</span>
-              </div>
+            <div class="chart-container">
+              <!-- Chart will be rendered here by JS -->
+              <div id="barChart" class="bar-chart"></div>
               
-              <!-- Chart Canvas (SVG will be injected here) -->
-              <div class="chart-canvas" id="chartCanvas" tabindex="0" aria-label="Grafik tren pendaftaran mahasiswa"></div>
+              <!-- Tooltip (hidden by default) -->
+              <div id="chartTooltip" class="chart-tooltip" role="tooltip" aria-hidden="true">
+                <div class="tooltip-year" id="ttYear">----</div>
+                <div class="tooltip-value" id="ttValue">--- Mahasiswa</div>
+                <div class="tooltip-trend" id="ttTrend">→ Stabil</div>
+              </div>
             </div>
-            
-            <!-- X-Axis Labels (rendered by JS, but container here for structure) -->
-            <div class="chart-x-labels" id="chartXLabels"></div>
           </div>
         </section>
 
@@ -246,21 +234,16 @@ if (count($chartData) >= 2) {
           </div>
         </section>
         
-      </div> <!-- /.content -->
+      </div>
     </main>
-  </div> <!-- /.app -->
+  </div>
 
   <!-- Chart Data for JS -->
   <script>
     window.__CHART_DATA__ = <?= json_encode($chartData, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES); ?>;
-    window.__CHART_CONFIG__ = {
-      gradientColors: ['#b91c1c', '#dc2626', '#ea580c'],
-      animationDuration: 1200,
-      tooltipDelay: 150
-    };
   </script>
   
   <!-- Main JS -->
-  <script src="../js/js_akademik/dashboard.js?v=5"></script>
+  <script src="../js/js_akademik/dashboard.js?v=6"></script>
 </body>
-</html>
+</html> 
