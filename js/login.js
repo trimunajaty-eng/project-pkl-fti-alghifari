@@ -3,10 +3,8 @@ document.addEventListener("DOMContentLoaded", () => {
   // ===== Animation Controller =====
   const Animation = {
     init: function(){
-      // Trigger page load animation
       document.documentElement.classList.add('page-loading');
       
-      // Hide loader after delay
       window.addEventListener("load", () => {
         setTimeout(() => {
           const loader = document.getElementById("loader");
@@ -14,24 +12,49 @@ document.addEventListener("DOMContentLoaded", () => {
             loader.classList.add('hidden');
             setTimeout(() => {
               loader.style.display = "none";
+              // ===== SHOW FLASH MESSAGE AFTER LOADER HIDES =====
+              showFlashMessage();
             }, 300);
           }
         }, 800);
       });
-    },
-    
-    reset: function(){
-      // Reset all animations (for testing)
-      document.querySelectorAll('[class*="animate-"]').forEach(el => {
-        el.style.animation = 'none';
-        el.offsetHeight; // Trigger reflow
-        el.style.animation = '';
-      });
     }
   };
 
-  // Initialize animations
   Animation.init();
+
+  // ===== Show Flash Message with Animation =====
+  function showFlashMessage(){
+    const flash = window.__FLASH__ || {};
+    if(!flash.pesan) return;
+    
+    const alert = document.querySelector('.alert');
+    if(!alert) return;
+    
+    // Re-trigger animation
+    alert.style.animation = 'none';
+    alert.offsetHeight; // Trigger reflow
+    alert.style.animation = '';
+    
+    // Auto-hide success message after 4 seconds
+    if(flash.tipe === 'success'){
+      setTimeout(() => {
+        alert.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+        alert.style.opacity = '0';
+        alert.style.transform = 'translateY(-8px)';
+        setTimeout(() => {
+          alert.style.display = 'none';
+          // Clean URL
+          try{
+            const url = new URL(window.location.href);
+            url.searchParams.delete('pesan');
+            url.searchParams.delete('tipe');
+            window.history.replaceState({}, document.title, url.toString());
+          }catch(e){}
+        }, 300);
+      }, 4000);
+    }
+  }
 
   // ===== Toggle Password =====
   const password = document.getElementById("password");
@@ -42,8 +65,6 @@ document.addEventListener("DOMContentLoaded", () => {
       const isPass = password.type === "password";
       password.type = isPass ? "text" : "password";
       toggle.classList.toggle("is-show", isPass);
-      
-      // Micro animation on toggle
       toggle.style.transform = 'scale(0.9)';
       setTimeout(() => toggle.style.transform = '', 100);
     });
@@ -53,19 +74,14 @@ document.addEventListener("DOMContentLoaded", () => {
   document.querySelectorAll('.input-group').forEach(group => {
     const input = group.querySelector('input');
     if(input){
-      input.addEventListener('focus', () => {
-        group.classList.add('focused');
-      });
-      input.addEventListener('blur', () => {
-        group.classList.remove('focused');
-      });
+      input.addEventListener('focus', () => group.classList.add('focused'));
+      input.addEventListener('blur', () => group.classList.remove('focused'));
     }
   });
 
-  // ===== Form Submit with Animation =====
+  // ===== Form Submit =====
   const form = document.querySelector(".login-form");
   const btn = document.getElementById("loginBtn");
-  const loaderBtn = document.querySelector(".btn-loader");
   const text = btn?.querySelector(".text");
 
   if (form && btn) {
@@ -75,30 +91,24 @@ document.addEventListener("DOMContentLoaded", () => {
       
       if(!username || !pass){
         e.preventDefault();
-        
-        // Shake animation on error
         btn.style.animation = 'shake 0.3s ease';
         setTimeout(() => btn.style.animation = '', 300);
         
-        // Show alert if not exists
+        // Show inline alert
         let alert = form.querySelector('.alert');
         if(!alert){
           alert = document.createElement('div');
-          alert.className = 'alert';
-          alert.textContent = 'Username dan password wajib diisi.';
+          alert.className = 'alert alert-error';
+          alert.innerHTML = '<span class="alert-icon">✗</span><span class="alert-text">Username dan password wajib diisi.</span><button class="alert-close" onclick="this.parentElement.remove()">×</button>';
           form.insertBefore(alert, form.firstChild);
-          setTimeout(() => alert.remove(), 3000);
+          alert.style.animation = 'slideInAlert 0.3s ease';
         }
-        
         return;
       }
       
-      // Loading state
       btn.classList.add('loading');
       btn.disabled = true;
       if(text) text.textContent = "Memproses...";
-      
-      // Auto reset after 7 seconds (prevent stuck)
       setTimeout(() => {
         btn.classList.remove('loading');
         btn.disabled = false;
@@ -111,10 +121,9 @@ document.addEventListener("DOMContentLoaded", () => {
   if(password){
     password.addEventListener("keydown", (e) => {
       if(typeof e.getModifierState === "function" && e.getModifierState("CapsLock")){
-        // Show temporary alert
         const alert = document.createElement('div');
-        alert.className = 'alert info';
-        alert.textContent = '⚠ CapsLock sedang aktif';
+        alert.className = 'alert alert-info';
+        alert.innerHTML = '<span class="alert-icon">ℹ</span><span class="alert-text">CapsLock sedang aktif</span><button class="alert-close" onclick="this.parentElement.remove()">×</button>';
         alert.style.position = 'absolute';
         alert.style.top = '10px';
         alert.style.left = '50%';
@@ -127,21 +136,10 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // ===== Add Shake Animation Dynamically =====
+  // ===== Add Shake Animation =====
   const style = document.createElement('style');
-  style.textContent = `
-    @keyframes shake {
-      0%, 100% { transform: translateX(0); }
-      25% { transform: translateX(-4px); }
-      75% { transform: translateX(4px); }
-    }
-  `;
+  style.textContent = `@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}`;
   document.head.appendChild(style);
-
-  // ===== Handle Page Refresh =====
-  if(performance.getEntriesByType("navigation")[0]?.type === 'reload'){
-    document.body.classList.add('page-refreshed');
-  }
 
   // ===== Debug Export =====
   if(window.location.hostname === 'localhost'){
