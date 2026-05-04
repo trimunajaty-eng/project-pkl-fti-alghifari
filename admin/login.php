@@ -16,7 +16,7 @@ $tipe  = trim($_GET['tipe'] ?? 'info');
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Login - Sistem Akademik</title>
+  <title>Login - Sistem Admin</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -37,10 +37,10 @@ $tipe  = trim($_GET['tipe'] ?? 'info');
 
       <!-- Left: Form -->
       <div class="login-left">
-        <div class="brand-chip animate-slide-up" style="animation-delay: 0.1s">🎓 Sistem Akademik</div>
+        <div class="brand-chip animate-slide-up" style="animation-delay: 0.1s">Sistem Admin</div>
         
         <h1 class="login-title animate-slide-up" style="animation-delay: 0.2s">Selamat Datang</h1>
-        <p class="login-subtitle animate-slide-up" style="animation-delay: 0.3s">Login untuk mengakses panel Admin, Akademik, atau Dosen.</p>
+        <p class="login-subtitle animate-slide-up" style="animation-delay: 0.3s">Login untuk mengakses panel Admin dan Akademik.</p>
 
         <form method="post" action="proses_login.php" class="login-form" id="formLogin" autocomplete="off">
           
@@ -60,11 +60,7 @@ $tipe  = trim($_GET['tipe'] ?? 'info');
             </div>
           </div>
 
-          <button type="submit" class="btn-login animate-slide-up" id="btnMasuk" style="animation-delay: 0.6s">🔓 Masuk</button>
-
-          <div class="login-note animate-fade-in" style="animation-delay: 0.7s">
-            🔐 Akses: <strong>Admin</strong> • <strong>Akademik</strong> • <strong>Dosen</strong>
-          </div>
+          <button type="submit" class="btn-login animate-slide-up" id="btnMasuk" style="animation-delay: 0.6s">Masuk</button>
 
           <div class="login-footer animate-fade-in" style="animation-delay: 0.8s">
             © <?= date('Y'); ?> Universitas Al-Ghifari
