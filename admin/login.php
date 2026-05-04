@@ -3,15 +3,9 @@ require_once __DIR__ . "/../config.php";
 
 // kalau sudah login, langsung redirect sesuai role
 if (!empty($_SESSION['role'])) {
-  if ($_SESSION['role'] === 'admin') {
-    header("Location: dashboard.php"); exit;
-  }
-  if ($_SESSION['role'] === 'akademik') {
-    header("Location: ../akademik/dashboard.php"); exit;
-  }
-  if ($_SESSION['role'] === 'dosen') {
-    header("Location: ../dosen/dashboard.php"); exit;
-  }
+  if ($_SESSION['role'] === 'admin') { header("Location: dashboard.php"); exit; }
+  if ($_SESSION['role'] === 'akademik') { header("Location: ../akademik/dashboard.php"); exit; }
+  if ($_SESSION['role'] === 'dosen') { header("Location: ../dosen/dashboard.php"); exit; }
 }
 
 $pesan = trim($_GET['pesan'] ?? '');
@@ -26,9 +20,9 @@ $tipe  = trim($_GET['tipe'] ?? 'info');
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../css/css_admin/login.css?v=2">
+  <link rel="stylesheet" href="../css/css_admin/login.css?v=3">
 </head>
-<body>
+<body class="login-body">
 
   <!-- Toast Notification -->
   <div class="toast" id="toast" aria-hidden="true">
@@ -39,22 +33,23 @@ $tipe  = trim($_GET['tipe'] ?? 'info');
   </div>
 
   <main class="login-page">
-    <section class="login-card">
+    <section class="login-card animate-on-load">
 
       <!-- Left: Form -->
       <div class="login-left">
-        <div class="brand-chip">Sistem Akademik</div>
-        <h1 class="login-title">Selamat Datang</h1>
-        <p class="login-subtitle">Login untuk mengakses panel Admin, Akademik, atau Dosen.</p>
+        <div class="brand-chip animate-slide-up" style="animation-delay: 0.1s">🎓 Sistem Akademik</div>
+        
+        <h1 class="login-title animate-slide-up" style="animation-delay: 0.2s">Selamat Datang</h1>
+        <p class="login-subtitle animate-slide-up" style="animation-delay: 0.3s">Login untuk mengakses panel Admin, Akademik, atau Dosen.</p>
 
         <form method="post" action="proses_login.php" class="login-form" id="formLogin" autocomplete="off">
           
-          <div class="field">
+          <div class="field animate-slide-up" style="animation-delay: 0.4s">
             <label for="username" class="field-label">Username</label>
             <input type="text" name="username" id="username" class="field-input" placeholder="Masukkan username" required>
           </div>
 
-          <div class="field">
+          <div class="field animate-slide-up" style="animation-delay: 0.5s">
             <label for="password" class="field-label">Password</label>
             <div class="password-box">
               <input type="password" name="password" id="password" class="field-input" placeholder="Masukkan password" required>
@@ -65,16 +60,20 @@ $tipe  = trim($_GET['tipe'] ?? 'info');
             </div>
           </div>
 
-          <button type="submit" class="btn-login" id="btnMasuk">Masuk</button>
+          <button type="submit" class="btn-login animate-slide-up" id="btnMasuk" style="animation-delay: 0.6s">🔓 Masuk</button>
 
-          <div class="login-footer">
+          <div class="login-note animate-fade-in" style="animation-delay: 0.7s">
+            🔐 Akses: <strong>Admin</strong> • <strong>Akademik</strong> • <strong>Dosen</strong>
+          </div>
+
+          <div class="login-footer animate-fade-in" style="animation-delay: 0.8s">
             © <?= date('Y'); ?> Universitas Al-Ghifari
           </div>
         </form>
       </div>
 
       <!-- Right: Campus Image -->
-      <div class="login-right" aria-hidden="true">
+      <div class="login-right animate-slide-right" aria-hidden="true">
         <div class="overlay"></div>
         <div class="right-content">
           <div class="campus-badge">UNFARI JABAR</div>
@@ -88,7 +87,9 @@ $tipe  = trim($_GET['tipe'] ?? 'info');
 
   <script>
     window.__FLASH__ = <?= json_encode(["tipe"=>$tipe,"pesan"=>$pesan], JSON_UNESCAPED_UNICODE); ?>;
+    // Flag untuk animasi load
+    document.documentElement.classList.add('page-loading');
   </script>
-  <script src="../js/js_admin/login.js?v=2"></script>
+  <script src="../js/js_admin/login.js?v=3"></script>
 </body>
 </html>

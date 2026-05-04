@@ -13,16 +13,66 @@
 }
 
 *{box-sizing:border-box;margin:0;padding:0}
-
 html,body{height:100%}
 
-body{
+body.login-body{
   font-family:"Poppins",Arial,sans-serif;
   color:var(--text-main);
   background:
     radial-gradient(circle at 10% 10%, rgba(185,28,28,0.06), transparent 30%),
     radial-gradient(circle at 90% 90%, rgba(234,179,8,0.08), transparent 30%),
     var(--bg-main);
+  overflow-x:hidden;
+}
+
+/* ===== PAGE LOAD ANIMATION ===== */
+html.page-loading body{ opacity:0; animation:pageFadeIn 0.4s ease forwards; }
+@keyframes pageFadeIn{ from{opacity:0} to{opacity:1} }
+
+/* ===== CARD ENTRANCE ANIMATION ===== */
+.animate-on-load{
+  animation:cardEntrance 0.5s cubic-bezier(0.2,0.8,0.2,1) forwards;
+  opacity:0;
+  transform:translateY(20px) scale(0.98);
+}
+@keyframes cardEntrance{
+  to{ opacity:1; transform:translateY(0) scale(1); }
+}
+
+/* ===== STAGGERED ELEMENT ANIMATIONS ===== */
+.animate-slide-up{
+  opacity:0;
+  transform:translateY(16px);
+  animation:slideUp 0.4s cubic-bezier(0.2,0.8,0.2,1) forwards;
+}
+@keyframes slideUp{
+  to{ opacity:1; transform:translateY(0); }
+}
+
+.animate-slide-right{
+  opacity:0;
+  transform:translateX(20px);
+  animation:slideRight 0.5s cubic-bezier(0.2,0.8,0.2,1) forwards;
+}
+@keyframes slideRight{
+  to{ opacity:1; transform:translateX(0); }
+}
+
+.animate-fade-in{
+  opacity:0;
+  animation:fadeIn 0.3s ease forwards;
+}
+@keyframes fadeIn{
+  to{ opacity:1; }
+}
+
+/* Button pulse on load */
+.btn-login.animate-slide-up{
+  animation:slideUp 0.4s cubic-bezier(0.2,0.8,0.2,1) forwards, buttonPulse 2s ease-in-out 0.8s infinite;
+}
+@keyframes buttonPulse{
+  0%,100%{ box-shadow:0 4px 12px rgba(185,28,28,0.2); }
+  50%{ box-shadow:0 6px 20px rgba(185,28,28,0.35); }
 }
 
 /* ===== Layout ===== */
@@ -34,14 +84,14 @@ body{
 }
 
 .login-card{
-  width:min(840px,100%);  /* ✅ Lebih compact dari 980px */
-  min-height:520px;        /* ✅ Lebih pendek dari 600px */
+  width:min(840px,100%);
+  min-height:520px;
   background:var(--card-bg);
   border-radius:var(--radius-lg);
   overflow:hidden;
   box-shadow:var(--shadow);
   display:grid;
-  grid-template-columns:1fr 1fr;  /* ✅ 50:50 split */
+  grid-template-columns:1fr 1fr;
 }
 
 /* ===== Left Side (Form) ===== */
@@ -67,7 +117,7 @@ body{
 }
 
 .login-title{
-  font-size:24px;          /* ✅ Lebih kecil dari 32px */
+  font-size:24px;
   font-weight:700;
   line-height:1.3;
 }
@@ -80,18 +130,12 @@ body{
 
 /* Form Fields */
 .login-form{display:grid;gap:14px}
-
 .field{display:grid;gap:6px}
-
-.field-label{
-  font-size:12px;
-  font-weight:600;
-  color:var(--text-main);
-}
+.field-label{font-size:12px;font-weight:600;color:var(--text-main)}
 
 .field-input{
   width:100%;
-  height:44px;             /* ✅ Lebih pendek dari 50px */
+  height:44px;
   border:1px solid var(--border);
   border-radius:var(--radius-md);
   background:var(--input-bg);
@@ -101,9 +145,7 @@ body{
   outline:none;
   transition:0.15s ease;
 }
-
 .field-input::placeholder{color:#9ca3af}
-
 .field-input:focus{
   background:#fff;
   border-color:var(--primary);
@@ -113,20 +155,16 @@ body{
 /* Password Toggle */
 .password-box{display:flex;align-items:center;gap:8px}
 .password-box .field-input{flex:1}
-
 .toggle-pass{
-  width:44px;
-  height:44px;
+  width:44px;height:44px;
   border:1px solid var(--border);
   border-radius:var(--radius-md);
   background:#fff;
   color:#374151;
-  display:grid;
-  place-items:center;
+  display:grid;place-items:center;
   cursor:pointer;
   transition:0.15s ease;
 }
-
 .toggle-pass:hover{background:#f9fafb;border-color:#d1d5db}
 .toggle-pass svg{width:18px;height:18px}
 .ico-eyeoff{display:none}
@@ -145,19 +183,11 @@ body{
   cursor:pointer;
   transition:0.15s ease;
 }
-
 .btn-login:hover{background:var(--primary-hover);transform:translateY(-1px)}
 .btn-login:disabled{opacity:0.7;cursor:not-allowed;transform:none}
 
-.login-note{
-  font-size:11px;
-  color:var(--text-soft);
-}
-
-.login-footer{
-  font-size:11px;
-  color:#9ca3af;
-}
+.login-note{font-size:11px;color:var(--text-soft)}
+.login-footer{font-size:11px;color:#9ca3af}
 
 /* ===== Right Side (Campus Image) ===== */
 .login-right{
@@ -165,26 +195,21 @@ body{
   min-height:520px;
   background:
     linear-gradient(135deg, rgba(127,29,29,0.65), rgba(146,64,14,0.55)),
-    url("../../img/unfari.png") center/cover no-repeat;  /* ✅ Gambar kampus tetap */
+    url("../../img/unfari.png") center/cover no-repeat;
   display:flex;
   align-items:flex-end;
   justify-content:flex-start;
 }
-
 .overlay{
-  position:absolute;
-  inset:0;
+  position:absolute;inset:0;
   background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.25));
 }
-
 .right-content{
-  position:relative;
-  z-index:1;
+  position:relative;z-index:1;
   padding:24px 28px;
   color:#fff;
   max-width:320px;
 }
-
 .campus-badge{
   display:inline-block;
   padding:5px 10px;
@@ -195,103 +220,64 @@ body{
   font-weight:600;
   margin-bottom:10px;
 }
-
-.right-title{
-  font-size:20px;          /* ✅ Lebih kecil dari 28px */
-  font-weight:700;
-  line-height:1.3;
-  margin:0 0 8px;
-}
-
-.right-text{
-  font-size:12px;
-  line-height:1.7;
-  color:rgba(255,255,255,0.92);
-  margin:0;
-}
+.right-title{font-size:20px;font-weight:700;line-height:1.3;margin:0 0 8px}
+.right-text{font-size:12px;line-height:1.7;color:rgba(255,255,255,0.92);margin:0}
 
 /* ===== Toast Notification ===== */
 .toast{
-  position:fixed;
-  top:14px;
-  right:14px;
-  z-index:999;
+  position:fixed;top:14px;right:14px;z-index:999;
   display:none;
 }
-
 .toast.show{display:block}
-
 .toast-card{
-  min-width:260px;
-  max-width:340px;
+  min-width:260px;max-width:340px;
   padding:12px 14px;
   border-radius:12px;
   color:#fff;
   box-shadow:0 12px 30px rgba(0,0,0,0.15);
-  animation:fadeDown 0.15s ease forwards;
+  animation:toastSlideIn 0.2s ease forwards;
 }
-
+@keyframes toastSlideIn{
+  from{opacity:0;transform:translateX(20px)}
+  to{opacity:1;transform:translateX(0)}
+}
 .toast-card.success{background:#16a34a}
 .toast-card.error{background:#dc2626}
 .toast-card.info{background:#1f2937}
-
 .toast-title{font-size:11px;font-weight:700}
 .toast-msg{margin-top:4px;font-size:12px;line-height:1.5}
 
-@keyframes fadeDown{
-  from{opacity:0;transform:translateY(-6px)}
-  to{opacity:1;transform:translateY(0)}
-}
-
 /* ===== Responsive ===== */
 @media (max-width:768px){
-  .login-card{
-    grid-template-columns:1fr;  /* Stack vertically */
-    min-height:auto;
-  }
-
-  .login-right{
-    min-height:180px;           /* ✅ Image section lebih pendek di mobile */
-    order:-1;                   /* Image di atas form */
-    align-items:center;
-    justify-content:center;
-  }
-
-  .right-content{
-    padding:18px 20px;
-    text-align:center;
-    max-width:100%;
-  }
-
-  .login-left{
-    padding:24px 20px;
-    gap:16px;
-  }
-
+  .login-card{grid-template-columns:1fr;min-height:auto}
+  .login-right{min-height:180px;order:-1;align-items:center;justify-content:center}
+  .right-content{padding:18px 20px;text-align:center;max-width:100%}
+  .login-left{padding:24px 20px;gap:16px}
   .login-title{font-size:22px}
   .right-title{font-size:18px}
 }
-
 @media (max-width:480px){
   .login-page{padding:12px}
-  
   .login-left{padding:20px 16px}
-  
   .login-title{font-size:20px}
   .login-subtitle{font-size:12px}
-  
-  .field-input, .toggle-pass, .btn-login{
-    height:42px;
-    font-size:12px;
-  }
-  
+  .field-input,.toggle-pass,.btn-login{height:42px;font-size:12px}
   .toast-card{min-width:240px}
 }
 
 /* ===== Focus Accessibility ===== */
-.field-input:focus-visible,
-.toggle-pass:focus-visible,
-.btn-login:focus-visible{
-  outline:2px solid var(--primary);
-  outline-offset:2px;
+.field-input:focus-visible,.toggle-pass:focus-visible,.btn-login:focus-visible{
+  outline:2px solid var(--primary);outline-offset:2px;
+}
+
+/* ===== Reduced Motion Preference ===== */
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{
+    animation-duration:0.01ms !important;
+    animation-iteration-count:1 !important;
+    transition-duration:0.01ms !important;
+  }
+  .animate-on-load,.animate-slide-up,.animate-slide-right,.animate-fade-in{
+    animation:none !important;opacity:1 !important;transform:none !important;
+  }
 }
