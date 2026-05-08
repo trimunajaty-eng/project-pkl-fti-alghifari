@@ -1,10 +1,10 @@
 admin :
-unfari 
-12345
+usn : unfari 
+pw : 12345
 
 akademik :
-infakd
-infakd
+usn : infakd
+pw : infakd
 
 mahasiswa :
 akbar : FTI265720102 pw : 12345
